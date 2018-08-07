@@ -1,0 +1,51 @@
+{
+  "name": "oe-business-rule",
+  "version": "0.0.1",
+  "description": "oe-cloud modularization project",
+  "engines": {
+    "node": ">=6"
+  },
+  "main": "index.js",
+  "scripts": {
+    "pretest": "npm install --no-optional",
+    "test": "mocha test/*.spec.js",
+    "lint": "eslint .",
+    "fix-lint": "eslint --fix .",
+    "grunt-cover": "grunt test-with-coverage"
+  },
+  "dependencies": {
+    "async": "^2.5.0",
+    "js-feel": "git+http://evgit/oecloud.io/feel.git#v1.4.3",
+    "js-feel-plugins": "git+http://evgit/atul/js-feel-plugins.git",
+    "oe-cloud": "git+http://evgit/oec-next/oe-cloud.git",
+    "oe-logger": "^1.0.0",
+    "serialize-error": "2.0.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^7.2.3",
+    "chai": "^3.4.1",
+    "chai-datetime": "^1.4.0",
+    "chai-things": "^0.2.0",
+    "chalk": "^1.1.1",
+    "deepcopy": "^1.0.0",
+    "eslint": "^4.10.0",
+    "grunt": "^0.4.5",
+    "grunt-banner": "^0.6.0",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-clean": "^0.7.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-jsbeautifier": "^0.2.12",
+    "grunt-mkdir": "^1.0.0",
+    "grunt-mocha-istanbul": "^5.0.2",
+    "grunt-mocha-test": "^0.13.2",
+    "istanbul": "0.4.1",
+    "mocha": "^3.4.2",
+    "superagent-defaults": "^0.1.14",
+    "supertest": "^1.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@evgit:atul/oe-business-rule.git"
+  },
+  "license": "MIT"
+}
