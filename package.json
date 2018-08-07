@@ -16,8 +16,8 @@
   "dependencies": {
     "async": "^2.5.0",
     "js-feel": "git+http://evgit/oecloud.io/feel.git#v1.4.3",
-    "js-feel-plugins": "git+http://evgit/oec-next/js-feel-plugins.git",
-    "oe-cloud": "git+http://evgit/oec-next/oe-cloud.git",
+    "js-feel-plugins": "git+http://evgit/oec-next/js-feel-plugins.git#master",
+    "oe-cloud": "git+http://evgit/oec-next/oe-cloud.git#master",
     "oe-logger": "^1.0.0",
     "serialize-error": "2.0.0"
   },
@@ -45,7 +45,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@evgit:atul/oe-business-rule.git"
+    "url": "git@evgit:oec-next/oe-business-rule.git"
   },
   "license": "MIT"
 }
