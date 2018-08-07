@@ -1,0 +1,14 @@
+{
+  "name":"Order",
+  "properties":{
+    "gate" : {
+      "type":"string"
+    }
+  },
+  "relations" : {
+    "cust" : {
+      "type" : "belongsTo",
+      "model": "Customer"
+    }
+  }
+}

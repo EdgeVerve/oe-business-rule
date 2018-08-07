@@ -1,0 +1,12 @@
+{
+  "name" : "Customer",
+  "properties" : {
+    "name": {
+      "type" : "string",
+      "id": "true"
+    },
+    "amount" : {
+      "type":"object"
+    }
+  }
+}
