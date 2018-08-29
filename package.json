@@ -16,8 +16,8 @@
   "dependencies": {
     "async": "^2.5.0",
     "js-feel": "git+http://evgit/oecloud.io/feel.git#v1.4.3",
-    "js-feel-plugins": "git+http://evgit/oec-next/js-feel-plugins.git#master",
-    "oe-cloud": "git+http://evgit/oec-next/oe-cloud.git#master",
+    "js-feel-plugins": "git+http://evgit/atul/js-feel-plugins.git",
+    "oe-cloud": "git+http://evgit/oec-next/oe-cloud.git",
     "oe-logger": "^1.0.0",
     "serialize-error": "2.0.0"
   },
@@ -39,13 +39,14 @@
     "grunt-mocha-istanbul": "^5.0.2",
     "grunt-mocha-test": "^0.13.2",
     "istanbul": "0.4.1",
+    "loopback-connector-postgresql" : "git+http://evgit/oecloud.io/loopback-connector-postgresql.git",
     "mocha": "^3.4.2",
     "superagent-defaults": "^0.1.14",
     "supertest": "^1.1.0"
   },
   "repository": {
     "type": "git",
-    "url": "git@evgit:oec-next/oe-business-rule.git"
+    "url": "git@evgit:atul/oe-business-rule.git"
   },
   "license": "MIT"
 }
