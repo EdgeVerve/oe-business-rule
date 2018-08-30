@@ -16,7 +16,6 @@
   "dependencies": {
     "async": "^2.5.0",
     "js-feel": "git+http://evgit/oecloud.io/feel.git#v1.4.3",
-    "js-feel-plugins": "git+http://evgit/atul/js-feel-plugins.git",
     "oe-cloud": "git+http://evgit/oec-next/oe-cloud.git",
     "oe-logger": "^1.0.0",
     "serialize-error": "2.0.0"

@@ -22,7 +22,7 @@ const {
   jsFeelRelationsPlugin,
   jsFeelExtFnPlugin,
   jsFeelCachePlugin
-} = require('js-feel-plugins');
+} = require('../../lib/feel-plugins');
 
 const settings = { logger };
 
