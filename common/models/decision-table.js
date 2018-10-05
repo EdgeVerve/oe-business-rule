@@ -131,10 +131,15 @@ module.exports = function decisionTableFn(decisionTable) {
           var docId = decisionTableData[0].id;
           var rules = JSON.parse(decisionTableData[0].decisionRules);
           dTable.execute_decision_table(docId, rules, data, function (err, results) {
-            if(err) {
+            if (err) {
+              getError('JS_FEEL_ERR', {options: options, name: 'JS_FEEL'}, function validateMaxGetErrCb(error) {
+                error.errMessage = err;
+                results = results || [];
+                results.push(error);
+                callback(null, results);
+              });
               callback(err);
-            }
-            else {
+            } else {
               callback(null, results);
             }
           });
@@ -198,27 +203,3 @@ module.exports = function decisionTableFn(decisionTable) {
     }
   });
 };
-
-function processPayload(results, payload) {
-  var deltaPayload = {};
-  if (Array.isArray(results)) {
-    results.forEach(function resultsForEach(rowObj) {
-      Object.keys(rowObj).forEach(function rowObjectsForEachKey(key) {
-        if (results.length > 1) {
-          deltaPayload[key] = deltaPayload[key] || [];
-          deltaPayload[key].push(rowObj[key]);
-        } else {
-          deltaPayload[key] = deltaPayload[key] || {};
-          deltaPayload[key] = rowObj[key];
-        }
-      });
-    });
-  } else {
-    deltaPayload = results || {};
-  }
-
-  Object.keys(deltaPayload).forEach(function deltaPayloadForEachKey(k) {
-    payload[k] = deltaPayload[k];
-  });
-  return payload;
-}
