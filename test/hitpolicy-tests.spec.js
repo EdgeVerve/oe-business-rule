@@ -86,18 +86,19 @@ describe("Decision Table Hit Policy Tests", () => {
       if (err) {
         done(err);
       } else {
-        expect(result.Routing.length).to.be.equal(2);
-        expect(result.Routing[1]).to.contain('Accept');
-        expect(result.Routing[0]).to.contain('Refer');
+        expect(result).to.be.an.array;
+        var record1 = result[0];
+        var record2 = result[1];
+        expect(record1).to.be.defined;
+        expect(record2).to.be.defined;
+        expect(record1.Routing).to.equal('Refer');
+        expect(record1['Review level']).to.equal('Level1');
+        expect(record1.Reason).to.equal('High risk application');
 
-        expect(result['Review level'].length).to.be.equal(2);
-        expect(result['Review level'][1]).to.contain('None');
-        expect(result['Review level'][0]).to.contain('Level1');
-
-        expect(result.Reason.length).to.be.equal(2);
-        expect(result.Reason[1]).to.contain('Acceptable');
-        expect(result.Reason[0]).to.contain('High risk application');
-
+        expect(record2.Routing).to.equal('Accept');
+        expect(record2['Review level']).to.equal('None');
+        expect(record2.Reason).to.equal('Acceptable');
+        
         done();
       }
     });
@@ -113,17 +114,11 @@ describe("Decision Table Hit Policy Tests", () => {
       if (err) {
         done(err);
       } else {
-        expect(result.Routing.length).to.be.equal(2);
-        expect(result.Routing).to.contain('Accept');
-        expect(result.Routing).to.contain('Refer');
-
-        expect(result['Review level'].length).to.be.equal(2);
-        expect(result['Review level']).to.contain('None');
-        expect(result['Review level']).to.contain('Level1');
-
-        expect(result.Reason.length).to.be.equal(2);
-        expect(result.Reason).to.contain('Acceptable');
-        expect(result.Reason).to.contain('High risk application');
+        expect(result).to.be.an.array;
+        expect(result.length).to.equal(2);
+        expect(result.map(x => x.Routing)).to.have.members(['Accept', 'Refer']);
+        expect(result.map(x => x.Reason)).to.have.members(['High risk application', 'Acceptable']);
+        expect(result.map(x => x['Review level'])).to.have.members(['None', 'Level1']);
 
         done();
       }

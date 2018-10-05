@@ -131,22 +131,11 @@ module.exports = function decisionTableFn(decisionTable) {
           var docId = decisionTableData[0].id;
           var rules = JSON.parse(decisionTableData[0].decisionRules);
           dTable.execute_decision_table(docId, rules, data, function (err, results) {
-            results = results || [];
-            if (rules.hitPolicy === 'V') {
-              if (err) {
-                getError('JS_FEEL_ERR', {options: options, name: 'JS_FEEL'}, function validateMaxGetErrCb(error) {
-                  error.errMessage = err;
-                  results.push(error);
-                  callback(null, results);
-                });
-              } else {
-                callback(null, results);
-              }
-            } else if (err) {
-              callback(err, null);
-            } else {
-              data = processPayload(results, data);
-              callback(null, data);
+            if(err) {
+              callback(err);
+            }
+            else {
+              callback(null, results);
             }
           });
         } else {
