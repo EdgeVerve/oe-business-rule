@@ -136,7 +136,7 @@ module.exports = function decisionTableFn(decisionTable) {
                 error.errMessage = err;
                 results = results || [];
                 results.push(error);
-                callback(results);
+                callback(null, results);
               });
               callback(err);
             } else {
@@ -203,27 +203,3 @@ module.exports = function decisionTableFn(decisionTable) {
     }
   });
 };
-
-function processPayload(results, payload) {
-  var deltaPayload = {};
-  if (Array.isArray(results)) {
-    results.forEach(function resultsForEach(rowObj) {
-      Object.keys(rowObj).forEach(function rowObjectsForEachKey(key) {
-        if (results.length > 1) {
-          deltaPayload[key] = deltaPayload[key] || [];
-          deltaPayload[key].push(rowObj[key]);
-        } else {
-          deltaPayload[key] = deltaPayload[key] || {};
-          deltaPayload[key] = rowObj[key];
-        }
-      });
-    });
-  } else {
-    deltaPayload = results || {};
-  }
-
-  Object.keys(deltaPayload).forEach(function deltaPayloadForEachKey(k) {
-    payload[k] = deltaPayload[k];
-  });
-  return payload;
-}
