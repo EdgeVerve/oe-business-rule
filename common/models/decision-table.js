@@ -13,7 +13,7 @@ var assert = require('assert');
 // var loopback = require('loopback');
 var logger = require('oe-logger');
 var log = logger('decision-table');
-var getError = require('oe-cloud/lib/error-utils').getValidationError;
+// var getError = require('oe-cloud/lib/error-utils').getValidationError;
 var delimiter = '&SP';
 
 const dTable = jsFeel.decisionTable;
@@ -197,27 +197,3 @@ module.exports = function decisionTableFn(decisionTable) {
     }
   });
 };
-
-function processPayload(results, payload) {
-  var deltaPayload = {};
-  if (Array.isArray(results)) {
-    results.forEach(function resultsForEach(rowObj) {
-      Object.keys(rowObj).forEach(function rowObjectsForEachKey(key) {
-        if (results.length > 1) {
-          deltaPayload[key] = deltaPayload[key] || [];
-          deltaPayload[key].push(rowObj[key]);
-        } else {
-          deltaPayload[key] = deltaPayload[key] || {};
-          deltaPayload[key] = rowObj[key];
-        }
-      });
-    });
-  } else {
-    deltaPayload = results || {};
-  }
-
-  Object.keys(deltaPayload).forEach(function deltaPayloadForEachKey(k) {
-    payload[k] = deltaPayload[k];
-  });
-  return payload;
-}
