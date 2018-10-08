@@ -164,11 +164,23 @@ describe(chalk.blue('Blank payload tests'), function () {
 
       DecisionTable.exec('TestDecision3', payload, testContext, function (err, dtResult) {
         if (err) {
-          done();
+          // console.log('error')
+          // console.dir(err);
+          done(err)
         }
         else {
-          done(new Error('Should not pass'));
+          // console.log('pass')
+          // console.dir(dtResult);
+          expect(dtResult).to.be.array;
+          expect(dtResult[0].errCode).to.equal('JS_FEEL_ERR');
+          done();
+
+          // conclusion: we cannot find the presence/absence
+          // like this we need an external function for this
+          // use case.
         }
+        // expect(dtResult)
+
       });
     });
   });
