@@ -18,7 +18,6 @@
     "js-feel": "git+http://evgit/oecloud.io/feel.git#v1.4.3",
     "js-feel-plugins": "git+http://evgit/oec-next/js-feel-plugins.git#master",
     "oe-cloud": "git+http://evgit/oec-next/oe-cloud.git#master",
-    "oe-logger": "^1.0.0",
     "serialize-error": "2.0.0"
   },
   "devDependencies": {
