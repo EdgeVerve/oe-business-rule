@@ -45,6 +45,7 @@ mongotest:
     - export MONGO_HOST="10.73.53.144"
     - export DB=mongo
     - export DB_NAME=${CI_PIPELINE_ID}_mongo
+    - npm config set registry "http://10.188.25.62:9002/"
     - time npm install --no-optional
     - npm run grunt-cover
   artifacts:
@@ -65,7 +66,7 @@ postgrestest:
     - export POSTGRES_HOST="10.73.53.144"
     - export DB_NAME=${CI_PIPELINE_ID}_pg
     - export ENABLE_DS_AUTOUPDATE=true
-    # - time npm install git+http://evgit/atul/loopback-connector-postgresql.git --save
+    - npm config set registry "http://10.188.25.62:9002/"
     - time npm install --no-optional
     - npm run grunt-cover
   tags:
@@ -84,7 +85,8 @@ oracletest:
     - export ORACLE_SYSPASSWORD=oeadmin
     - export ORACLE_SID=ORCLCDB
     - export DB_NAME=${CI_PIPELINE_ID}_pg
-    - time npm install git+http://evgit/atul/oe-connector-oracle.git --no-optional
+    - npm config set registry "http://10.188.25.62:9002/"
+    - time npm install git+http://evgit/oecloud.io/oe-connector-oracle.git --no-optional
     - time npm install --no-optional
     - mv /oracledb node_modules/
     - export CI_PROJECT_NAMESPACE=${group}
@@ -96,13 +98,6 @@ oracletest:
     - npm run grunt-cover
   tags:
     - CEP_RUNNER    
-
-buildjob:
-  stage: build
-  script: 
-    - echo "Building Image"
-  tags:
-    - CEP_RUNNER
 
 lastcleanup:
   stage: cleanup
