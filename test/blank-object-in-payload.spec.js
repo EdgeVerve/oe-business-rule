@@ -162,7 +162,7 @@ describe(chalk.blue('Blank payload tests'), function () {
       payload.options = testContext;
       payload.options.modelName = Customer.modelName;
 
-      DecisionTable.exec('TestDecision3', payload, testContext, function (err, dtResult) {
+      DecisionTable.exec('TestDecision3', payload, testContext, function (err) {
         if (err) {
           done();
         }
