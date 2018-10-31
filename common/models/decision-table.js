@@ -13,7 +13,7 @@ var assert = require('assert');
 // var loopback = require('loopback');
 var logger = require('oe-logger');
 var log = logger('decision-table');
-var getError = require('oe-cloud/lib/error-utils').getValidationError;
+// var getError = require('oe-cloud/lib/error-utils').getValidationError;
 var delimiter = '&SP';
 
 const dTable = jsFeel.decisionTable;
@@ -132,12 +132,6 @@ module.exports = function decisionTableFn(decisionTable) {
           var rules = JSON.parse(decisionTableData[0].decisionRules);
           dTable.execute_decision_table(docId, rules, data, function (err, results) {
             if (err) {
-              getError('JS_FEEL_ERR', {options: options, name: 'JS_FEEL'}, function validateMaxGetErrCb(error) {
-                error.errMessage = err;
-                results = results || [];
-                results.push(error);
-                callback(null, results);
-              });
               callback(err);
             } else {
               callback(null, results);
