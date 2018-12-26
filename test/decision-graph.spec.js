@@ -74,4 +74,28 @@ describe("Decision Graph Model Tests", () => {
       }
     });
   });
+
+  it('should assert that the validate remoteMethod works as expected (for designer)', done => {
+    var incorrectData = {};
+    var validData = {};
+
+    Promise.all(
+      [incorrectData, validData]
+      .map(data => new Promise(
+        (resolve, reject) => DecisionGraph.validate(data, testContext, (err, output) => {
+            expect(err).to.be.null;
+            resolve(output);
+          })
+        )
+      )
+    )
+    .then(results => {
+      expect(results.length).to.equal(2);
+      var incorrectOutput = results[0];
+      var validOutput = results[1];
+
+      expect(Object.keys(incorrectOutput).some(key => incorrectOutput[key].isValid === false), 'incorrect data should produce some error, but did not').to.be.true;
+      expect(Object.keys(validOutput).every(key => validOutput[key].isValid === true), 'valid data has produced some error but should not').to.be.true;
+    });
+  });
 });
