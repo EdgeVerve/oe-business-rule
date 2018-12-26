@@ -225,4 +225,44 @@ describe("DecisionTable Model Tests", () => {
     req.on('error', done);
     req.end();
   }).timeout(120000);
+
+  it('should be able to retrieve the parsed representation of an excel file containing a decision table', done => {
+    var fileContents = fs.readFileSync(path.join(__dirname, 'business-rule-data/DecisionTable.json'), {encoding: 'utf8'});
+    var data = JSON.parse(fileContents);
+    var {name, document: { documentData } } = data[0];
+    name+=1;
+    DecisionTable.parseExcel({documentData}, testContext, (err, result) => {
+      if(err) {
+        done(err)
+        return;
+      }
+      
+      DecisionTable.findOne({ where:{ name }}, testContext, (err, output) => {
+        if(err) {
+          done(err);
+        }
+        else {
+          expect(typeof output.decisionRules).to.equal('string')
+          expect(typeof result).to.equal('object');
+          rulesObject = JSON.parse(output.decisionRules);
+          // expect(Object.keys(result).every( key => result[key] === rulesObject[key] )).to.be.true;
+          expect(result).to.deep.equal(rulesObject);
+          done();
+        }
+      });
+    });
+  });
+
+  it('should insert a decision table json directly (for rule designer use case)', done => {
+    var inputData = {"name":"TestTable","decisionRules":"{\"inputExpressionList\":[\"input\"],\"outputs\":[\"output\"],\"outputValues\":[\"\"],\"ruleList\":[[\"\\\"yes\\\"\",\"true\"],[\"\\\"no\\\"\",\"false\"]],\"hitPolicy\":\"U\",\"inputValues\":[\"\"]}"};
+    DecisionTable.create(inputData, testContext, (err) => {
+      if(err) {
+        done(err)
+      }
+      else {
+        done();
+      }
+    })
+  });
+
 });
