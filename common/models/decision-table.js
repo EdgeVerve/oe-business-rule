@@ -42,11 +42,10 @@ module.exports = function decisionTableFn(decisionTable) {
         log.error(ctx.options, 'Error - Unable to process decision table data -', err);
         next(new Error('Decision table data provided could not be parsed, please provide proper data'));
       }
-    } else if( 'decisionRules' in data) {
+    } else if ( 'decisionRules' in data) {
       next();
-    }
-    else {
-      next(new Error('Data being posted is incorrect. Either an excel file was expected for property - documentData, or, a parsed decision table object was expected for property - decisionRules'))
+    } else {
+      next(new Error('Data being posted is incorrect. Either an excel file was expected for property - documentData, or, a parsed decision table object was expected for property - decisionRules'));
     }
   });
 
