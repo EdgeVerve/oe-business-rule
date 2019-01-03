@@ -21,7 +21,7 @@ const dTable = jsFeel.decisionTable;
 module.exports = function decisionTableFn(decisionTable) {
   decisionTable.observe('before save', function decisionTableBeforeSave(ctx, next) {
     var data = ctx.__data || ctx.instance;
-    if ('documentData' in data) {
+    if ('documentData' in data && typeof data.documentData !== 'undefined') {
       // parse the excel file, throw error if file invalid
       if (data.documentData.indexOf('base64') === -1) {
         return next(new Error('Decision table data provided is not a base64 encoded string'));
@@ -42,8 +42,10 @@ module.exports = function decisionTableFn(decisionTable) {
         log.error(ctx.options, 'Error - Unable to process decision table data -', err);
         next(new Error('Decision table data provided could not be parsed, please provide proper data'));
       }
+    } else if ( 'decisionRules' in data) {
+      next();
     } else {
-      next(new Error('There was no excel file provided'));
+      next(new Error('Data being posted is incorrect. Either an excel file was expected for property - documentData, or, a parsed decision table object was expected for property - decisionRules'));
     }
   });
 
@@ -196,4 +198,50 @@ module.exports = function decisionTableFn(decisionTable) {
       root: true
     }
   });
+
+  decisionTable.remoteMethod('parseExcel', {
+    description: 'Parse the uploaded excel and return valid decision table',
+    accessType: 'WRITE',
+    isStatic: true,
+    accepts: [{
+      arg: 'inputData', type: 'object', http: { source: 'body' },
+      required: true, description: 'The JSON containing the document data to parse'
+    }
+    ],
+    http: {
+      verb: 'POST',
+      path: '/parseExcel'
+    },
+    returns: {
+      type: 'object',
+      root: true
+    }
+  });
+
+  // Parses the excel uploaded from the feel designer
+  decisionTable.parseExcel = function (inputData, options, cb) {
+    var document = inputData;
+    if (
+      typeof document.documentData !== 'string' ||
+      document.documentData.indexOf('base64') < 0
+    ) {
+      return cb(
+        new Error(
+          'Decision table data provided is not a base64 encoded string'
+        )
+      );
+    }
+    var base64String = document.documentData.split(',')[1];
+    var binaryData = new Buffer(base64String, 'base64').toString(
+      'binary'
+    );
+    var workbook = XLSX.read(binaryData, {
+      type: 'binary'
+    });
+
+    var sheet = workbook.Sheets[workbook.SheetNames[0]];
+    var csv = XLSX.utils.sheet_to_csv(sheet, { FS: delimiter });
+    var decisionRules = dTable.csv_to_decision_table(csv);
+    cb(null, decisionRules);
+  };
 };

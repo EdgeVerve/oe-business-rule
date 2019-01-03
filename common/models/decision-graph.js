@@ -74,4 +74,46 @@ module.exports = function (DecisionGraph) {
       );
     }
   });
+
+  DecisionGraph.remoteMethod('validate', {
+    description: 'Validate the nodes of a decision graph from the Rule Designer',
+    accessType: 'WRITE',
+    isStatic: true,
+    accepts: [{
+      arg: 'inputData', type: 'object', http: { source: 'body' },
+      required: true, description: 'The JSON containing the graph node data to validate'
+    }
+    ],
+    http: {
+      verb: 'POST',
+      path: '/validate'
+    },
+    returns: {
+      type: 'object',
+      root: true
+    }
+  });
+
+  // Validates the nodes with data POSTed from the Rule Designer
+  DecisionGraph.validate = function validateDecisionGraph(inputData, options, cb) {
+    var output = {};
+    Object.keys(inputData).forEach(function (key) {
+      var isValid = false;
+      var message = null;
+      try {
+        jsFeel.feel.parse(inputData[key]);
+        isValid = true;
+      } catch (e) {
+        message = {
+          name: e.name,
+          location: e.location
+        };
+      }
+      output[key] = {
+        valid: isValid,
+        errormessage: message
+      };
+    });
+    cb(null, output);
+  };
 };
