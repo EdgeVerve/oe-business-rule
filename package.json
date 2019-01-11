@@ -1,7 +1,7 @@
 {
   "name": "oe-business-rule",
-  "version": "0.0.1",
-  "description": "oe-cloud modularization project",
+  "version": "2.0.0",
+  "description": "oe-cloud modularization project aka oec-next",
   "engines": {
     "node": ">=6"
   },
@@ -14,9 +14,8 @@
     "grunt-cover": "grunt test-with-coverage"
   },
   "dependencies": {
-    "async": "^2.5.0",
+    "async": "2.6.1",
     "js-feel": "git+http://evgit/oecloud.io/feel.git#v1.4.4",
-    "oe-cloud": "git+http://evgit/oec-next/oe-cloud.git#master",
     "serialize-error": "2.0.0"
   },
   "devDependencies": {
@@ -38,6 +37,7 @@
     "grunt-mocha-test": "^0.13.2",
     "istanbul": "0.4.1",
     "loopback-connector-mongodb": "^3.4.2",
+    "oe-cloud": "git+http://evgit/oec-next/oe-cloud.git#2.0.0",
     "oe-connector-postgresql": "git+http://evgit/oec-next/oe-connector-postgresql.git#master",
     "mocha": "^3.4.2",
     "superagent-defaults": "^0.1.14",
@@ -45,7 +45,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@evgit:atul/oe-business-rule.git"
+    "url": "git@evgit:oec-next/oe-business-rule.git"
   },
   "license": "MIT"
 }
