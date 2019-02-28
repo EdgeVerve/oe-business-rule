@@ -50,6 +50,6 @@
   "methods": {},
   "hidden":["documentName", "documentData"],
   "mixins" : {
-    "VersionMixin" : "true"
+    "VersionMixin" : false
   }
 }

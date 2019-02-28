@@ -33,6 +33,6 @@
   "acls": [],
   "methods": {},
   "mixins" : {
-    "VersionMixin" : "true"
+    "VersionMixin" : false
   }
 }
