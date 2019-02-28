@@ -48,5 +48,8 @@
   "validations": [],
   "acls": [],
   "methods": {},
-  "hidden":["documentName", "documentData"]
+  "hidden":["documentName", "documentData"],
+  "mixins" : {
+    "VersionMixin" : "true"
+  }
 }

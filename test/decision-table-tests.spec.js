@@ -11,6 +11,7 @@ var {
 } = require('./test-utils');
 var http = require('http');
 var clone = require('deepcopy');
+var async = require('async');
 
 describe("DecisionTable Model Tests", () => {
   
@@ -265,4 +266,135 @@ describe("DecisionTable Model Tests", () => {
     })
   });
 
+  it('should assert a decision table update reflects the updated rule', done => {
+    var insert = file => cb => {
+      let contents = null;
+      try {
+        contents = fetchXLSBase64(file);
+      } catch (error) {
+        cb(error);
+        return;
+      }
+
+      let payload = {
+        name: 'Rule1',
+        documentName: 'file1.xlsx',
+        documentData: contents
+      }
+      DecisionTable.create(payload, testContext, (insertError, record) => {
+        if(insertError) {
+          cb(insertError);
+        }
+        else {
+          try {
+            console.log(record._version);
+            expect(record._version).to.be.defined;
+          } catch (error) {
+            cb(error);
+            return;
+          }
+          cb();
+        }
+      });
+    };
+
+    var fetchAndAssert = cb => {
+      DecisionTable.find({ name: 'Rule1'}, testContext, (err, result) => {
+        if(err) {
+          cb(err);
+        }
+        else {
+          try {
+            expect(result[0]._version).to.be.defined;
+          } catch (error) {
+            cb(error);
+            return;
+          }
+          cb();
+        }
+      });
+    }
+    
+    var rulePayload = {
+      gender: 'F',
+      age: 33
+    };
+
+    var executeAndAssert = result => cb => {
+      DecisionTable.exec('Rule1', rulePayload, testContext, (execError, execResult) => {
+        if(execError) {
+          cb(execError);
+        }
+        else {
+          try {
+            expect(execResult.grant).to.equal(result);            
+          } catch (error) {
+            cb(error);
+            return;
+          }
+          cb();
+        }
+      });
+    };
+
+    var updateRule = file => cb => {
+      let contents = null;
+      try {
+        contents = fetchXLSBase64(file)
+      } catch (error) {
+        cb(error)
+        return;
+      }
+
+      var upsertPayload = {
+        name:'Rule1',
+        documentData : contents
+      };
+
+      DecisionTable.findOne({name: 'Rule1'}, testContext, (err, record) => {
+        if(err) {
+          cb(err);
+        }
+        else {
+          expect(record._version).to.be.defined;
+          let cachedVersion = record._version;
+          upsertPayload._version = cachedVersion
+          
+          record.updateAttributes(upsertPayload, testContext, (updateError, updatedRecord) => {
+            if(updateError) {
+              cb(updateError);
+            }
+            else {
+              try {
+                expect(updatedRecord._version).to.not.equal(cachedVersion);
+              } catch (error) {
+                cb(error);
+                return;
+              }
+              cb();
+            }
+          });
+        }
+      })
+
+      
+    };
+
+    async.seq(
+      insert('./test/test-data/filea.xlsx'), 
+      fetchAndAssert,
+      executeAndAssert('hold'), 
+      updateRule('./test/test-data/fileb.xlsx'), 
+      executeAndAssert('allow'))((err) => {        
+        if(err) {
+          done(err)
+        }
+        else {
+          done();
+        }
+    });
+
+  });
+
+  
 });

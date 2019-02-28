@@ -20,7 +20,7 @@ const dTable = jsFeel.decisionTable;
 
 module.exports = function decisionTableFn(decisionTable) {
   decisionTable.observe('before save', function decisionTableBeforeSave(ctx, next) {
-    var data = ctx.__data || ctx.instance;
+    var data = ctx.__data || ctx.instance || ctx.data;
     if ('documentData' in data && typeof data.documentData !== 'undefined') {
       // parse the excel file, throw error if file invalid
       if (data.documentData.indexOf('base64') === -1) {
@@ -130,7 +130,7 @@ module.exports = function decisionTableFn(decisionTable) {
         if (err) {
           callback(err);
         } else if (decisionTableData.length) {
-          var docId = decisionTableData[0].id;
+          var docId = decisionTableData[0].id + decisionTableData[0]._version;
           var rules = JSON.parse(decisionTableData[0].decisionRules);
           dTable.execute_decision_table(docId, rules, data, function (err, results) {
             if (err) {

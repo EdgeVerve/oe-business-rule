@@ -17,7 +17,9 @@
     "async": "^2.5.0",
     "js-feel": "git+http://evgit/oecloud.io/feel.git#v1.4.4",
     "oe-cloud": "git+http://evgit/oec-next/oe-cloud.git#master",
-    "serialize-error": "2.0.0"
+    "oe-common-mixins": "git+http://10.73.97.24/oec-next/oe-common-mixins.git",
+    "serialize-error": "2.0.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
