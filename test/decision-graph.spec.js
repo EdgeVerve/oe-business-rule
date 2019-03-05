@@ -13,7 +13,6 @@ var bootstrapped = require('./bootstrapper');
 
 describe("Decision Graph Model Tests", () => {
   var DecisionGraph;
-  var prefix = "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,";
   var testContext = {
     ctx: { tenantId: 'test-tenant'}
   };
@@ -108,5 +107,64 @@ describe("Decision Graph Model Tests", () => {
       done();
     })
     .catch(done);
+  });
+
+  it('should assert that updating a decision node in the editor should reflect in the result', done => {
+    let initialData = {"Decision Table 1" : "decision table(input expression list : ['age','gender'],outputs : \"grant\",input values list : [[],[]],output values : [[\"disallow\",\"allow\",\"hold\"]],rule list : [['<10','\"F\"','\"disallow\"'],['[11..30]','\"F\"','\"allow\"'],['>30','\"F\"','\"hold\"']],id : 'Decision Table 1',hit policy : 'U')"};
+    let modifiedData = {"Decision Table 1" : "decision table(input expression list : ['age','gender'],outputs : \"grant\",input values list : [[],[]],output values : [[\"disallow\",\"allow\",\"hold\"]],rule list : [['<10','\"F\"','\"disallow\"'],['[11..33]','\"F\"','\"allow\"'],['>33','\"F\"','\"hold\"']],id : 'Decision Table 1',hit policy : 'U')"};
+    let payload = {
+      gender: 'F',
+      age: 33
+    };
+
+    let executeWith = (arg, testFn) => cb => {
+      let inputData = {
+        jsonFeel: arg,
+        decisions: ['Decision Table 1'],
+        payload
+      };
+
+      DecisionGraph.execute(inputData, testContext, (err, results) => {
+        if(err) {
+          cb(err)
+        }
+        else {
+          testFn(cb, results);
+        }
+      });
+    };
+
+    let assert1 = (cb, result) => {
+      try {
+        // console.log(result)
+        expect(result[0]['grant']).to.equal('hold');
+      }
+      catch(error) {
+        cb(error);
+        return;
+      }
+      cb();
+    };
+
+    let assert2 = (cb, result) => {
+      try {
+        expect(result[0]['grant']).to.equal('allow');
+      }
+      catch(error) {
+        cb(error);
+        return;
+      }
+      cb();
+    };
+
+
+    async.seq(executeWith(initialData, assert1), executeWith(modifiedData, assert2))(err => {
+      if(err) {
+        done(err)
+      }
+      else {
+        done();
+      }
+    });
   });
 });
