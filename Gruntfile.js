@@ -62,7 +62,8 @@ module.exports = function GruntConfig(grunt) {
             branches: 30,
             functions:30 
           },
-          reportFormats: ['lcov']
+          reportFormats: ['lcov'],
+          mochaOptions: ['--exit']
         }
       }
     }
