@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "async": "2.6.1",
-    "js-feel": "1.4.4",
+    "js-feel": "^1.4.3",
     "serialize-error": "2.0.0"
   },
   "devDependencies": {
