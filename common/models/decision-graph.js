@@ -23,11 +23,11 @@ module.exports = function (DecisionGraph) {
     isStatic: true,
     accepts: [{ arg: 'inputData', type: 'object', http: { source: 'body' },
       required: true, description: 'The JSON containing the graph data and payload to execute' },
-      {
-        arg: 'options',
-        type: 'object',
-        http: 'optionsFromRequest'
-      }  
+    {
+      arg: 'options',
+      type: 'object',
+      http: 'optionsFromRequest'
+    }
     ],
     http: {
       verb: 'POST',
