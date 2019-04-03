@@ -78,6 +78,11 @@ module.exports = function (DecisionService) {
           source: 'body'
         },
         required: true
+      },
+      {
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest'
       }
     ],
     returns: {
