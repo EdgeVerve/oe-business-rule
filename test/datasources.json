@@ -12,7 +12,7 @@
     "host": "localhost",
     "port": 27017,
     "url": "mongodb://localhost:27017/oe-business-rule",
-    "database": "oe-skeleton",
+    "database": "oe-business-rule",
     "password": "admin",
     "name": "db",
     "connector": "mongodb",
