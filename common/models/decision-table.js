@@ -70,6 +70,11 @@ module.exports = function decisionTableFn(decisionTable) {
           source: 'body'
         },
         description: 'An object on which business rules should be applied'
+      },
+      {
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest'
       }
     ],
     http: {
