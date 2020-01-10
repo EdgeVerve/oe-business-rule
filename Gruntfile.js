@@ -9,38 +9,8 @@ module.exports = function GruntConfig(grunt) {
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+
     testFiles: 'test/*.spec.js',
-    mkdir: {
-      all: {
-        options: {
-          create: ['dist']
-        }
-      }
-    },
-
-    copy: {
-      main: {
-        files: [
-          // includes files within path and its sub-directories
-          {
-            expand: true,
-            src: ['**', '!node_modules/**', '!coverage/**'],
-            dest: 'dist/'
-          }
-        ]
-      }
-    },
-
-    mochaTest: {
-      test: {
-        options: {
-          quiet: false,
-          clearRequireCache: true,
-          timeout: 100000
-        },
-        src: ['<%= testFiles %>']
-      }
-    },
 
     clean: {
       coverage: {
@@ -60,7 +30,7 @@ module.exports = function GruntConfig(grunt) {
             lines: 30,
             statements: 30,
             branches: 30,
-            functions:30 
+            functions: 30
           },
           reportFormats: ['lcov'],
           mochaOptions: ['--exit']
@@ -70,12 +40,8 @@ module.exports = function GruntConfig(grunt) {
   });
 
   // Add the grunt-mocha-test tasks.
-  grunt.loadNpmTasks('grunt-mocha-test');
-  grunt.loadNpmTasks('grunt-mocha-istanbul');
   grunt.loadNpmTasks('grunt-contrib-clean');
-
-  grunt.loadNpmTasks('grunt-mkdir');
-  grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-mocha-istanbul');
 
   grunt.registerTask('test-with-coverage', ['clean:coverage', 'mocha_istanbul']);
 };
