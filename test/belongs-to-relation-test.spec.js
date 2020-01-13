@@ -6,7 +6,7 @@
  */
 /* jshint -W024 */
 /* jshint expr:true */
-//to avoid jshint errors for expect
+// to avoid jshint errors for expect
 
 // var oecloud = require('oe-cloud');
 // var loopback = require('loopback');
@@ -33,7 +33,6 @@ describe(chalk.blue('Business rule - belongsTo relation'), function () {
 
   before('wait for boot', function (done) {
     bootstrapped.then(() => {
-
       DecisionTable = loopback.findModel('DecisionTable');
       Customer = loopback.findModel('Customer');
       Order = loopback.findModel('Order');
@@ -44,7 +43,7 @@ describe(chalk.blue('Business rule - belongsTo relation'), function () {
 
       done();
     })
-    .catch(done);
+      .catch(done);
   });
 
   before('creating dummy data for Customer', function (done) {
@@ -58,9 +57,8 @@ describe(chalk.blue('Business rule - belongsTo relation'), function () {
 
     Customer.create(data, testContext, function (err, result) {
       if (err) {
-        done(err)
-      }
-      else {
+        done(err);
+      } else {
         expect(err).to.be.null;
         expect(result.name).to.equal(data.name);
         custId = result.id;
@@ -77,9 +75,8 @@ describe(chalk.blue('Business rule - belongsTo relation'), function () {
 
     Order.create(data, testContext, function (err, result) {
       if (err) {
-        done(err)
-      }
-      else {
+        done(err);
+      } else {
         // console.dir(err);
         expect(err).to.be.null;
         expect(result.date).to.equal(data.date);
@@ -100,8 +97,7 @@ describe(chalk.blue('Business rule - belongsTo relation'), function () {
     DecisionTable.create(data, testContext, function (err, result) {
       if (err) {
         done(err);
-      }
-      else {
+      } else {
         expect(result).to.not.be.null;
         expect(result.name).to.equal(data.name);
         done();
@@ -112,9 +108,8 @@ describe(chalk.blue('Business rule - belongsTo relation'), function () {
   it('should access the belongsTo relation and process rule correctly', function (done) {
     Order.findOne({ gate: 'foo' }, testContext, function (err, orderRecord) {
       if (err) {
-        done(err)
-      }
-      else {
+        done(err);
+      } else {
         // console.log('foo');
         expect(orderRecord).to.not.be.null;
         expect(orderRecord.gate).to.equal('foo');
@@ -133,11 +128,10 @@ describe(chalk.blue('Business rule - belongsTo relation'), function () {
 
           DecisionTable.exec('TestDecision', payload, testContext, function (err, dtResult) {
             if (err) {
-              done(err)
-            }
-            else {
+              done(err);
+            } else {
               // console.dir(dtResult);
-              expect(dtResult["customer name"]).to.equal(100);
+              expect(dtResult['customer name']).to.equal(100);
               done();
             }
           });

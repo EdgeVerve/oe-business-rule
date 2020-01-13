@@ -4,4 +4,4 @@ var prefix = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.s
 
 module.exports = {
   fetchXLSBase64: file => prefix + fs.readFileSync(file).toString('base64')
-}
+};

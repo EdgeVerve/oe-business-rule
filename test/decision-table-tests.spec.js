@@ -11,10 +11,8 @@ var {
 } = require('./test-utils');
 var http = require('http');
 var clone = require('deepcopy');
-var async = require('async');
 
-describe("DecisionTable Model Tests", () => {
-  
+describe('DecisionTable Model Tests', () => {
   var DecisionTable;
   var BaseUser;
   var testContext = {
@@ -23,23 +21,22 @@ describe("DecisionTable Model Tests", () => {
     }
   };
 
-  before('wait for boot', function(done) {
+  before('wait for boot', function (done) {
     // this.timeout(8000)
     bootstrapped.then(() => {
+      DecisionTable = loopback.findModel('DecisionTable');
+      BaseUser = loopback.findModel('User');
 
-        DecisionTable = loopback.findModel('DecisionTable');
-        BaseUser = loopback.findModel('User');
+      expect(DecisionTable).to.not.be.undefined;
+      expect(BaseUser).to.not.be.undefined;
 
-        expect(DecisionTable).to.not.be.undefined;
-        expect(BaseUser).to.not.be.undefined;
-
-        done();
-      })
-      .catch(done)
+      done();
+    })
+      .catch(done);
   });
 
   // obsolete
-  it('Should fail to create decision table as base64 validation of decision data is violated', function(done) {
+  it('Should fail to create decision table as base64 validation of decision data is violated', function (done) {
     // var decisionTableData = {
     //   "name": "sample",
     //   "document": {
@@ -49,19 +46,19 @@ describe("DecisionTable Model Tests", () => {
     // }
 
     var decisionTableData = {
-      "name": "sample",
-      "documentName": "sample.xlsx",
-      "documentData": "wrong decision data"
-  
-    }
-    DecisionTable.create(decisionTableData, testContext, function(err, res) {
+      'name': 'sample',
+      'documentName': 'sample.xlsx',
+      'documentData': 'wrong decision data'
+
+    };
+    DecisionTable.create(decisionTableData, testContext, function (err, res) {
       expect(err).not.to.be.undefined;
       expect(err.message).to.equal('Decision table data provided is not a base64 encoded string');
       done();
     });
   });
 
-  it('Should fail to create decision table as decision data is not correct', function(done) {
+  it('Should fail to create decision table as decision data is not correct', function (done) {
     // var decisionTableData = {
     //   "name": "sample",
     //   "document": {
@@ -70,12 +67,12 @@ describe("DecisionTable Model Tests", () => {
     //   }
     // }
     var decisionTableData = {
-      "name": "sample",
-      "documentName": "sample.xlsx",
-      "documentData": "base64"
+      'name': 'sample',
+      'documentName': 'sample.xlsx',
+      'documentData': 'base64'
     };
-    
-    DecisionTable.create(decisionTableData, testContext, function(err, res) {
+
+    DecisionTable.create(decisionTableData, testContext, function (err, res) {
       // console.log(err);
       expect(err).not.to.be.undefined;
       expect(err.message).to.equal('Decision table data provided could not be parsed, please provide proper data');
@@ -83,15 +80,15 @@ describe("DecisionTable Model Tests", () => {
     });
   });
 
-  it('Should fail to execute decision table as decision table data is not proper', function(done) {
-    DecisionTable.exec("invalidTableName", {}, testContext, function(err, res) {
+  it('Should fail to execute decision table as decision table data is not proper', function (done) {
+    DecisionTable.exec('invalidTableName', {}, testContext, function (err, res) {
       expect(err).not.to.be.undefined;
       expect(err.message).to.equal('No Document found for DocumentName invalidTableName');
       done();
     });
   });
   var decisonFileName;
-  var decisionName; 
+  var decisionName;
   it('should insert a decision from an excel file which is valid', done =>{
     var fileContents = fs.readFileSync(path.join(__dirname, 'business-rule-data/DecisionTable.json'), {encoding: 'utf8'});
     var data = JSON.parse(fileContents);
@@ -100,10 +97,9 @@ describe("DecisionTable Model Tests", () => {
     decisionName = name;
     var record = { name, documentData, documentName };
     DecisionTable.create(record, testContext, (err, newInstance) => {
-      if(err) {
-        done(err)
-      }
-      else {
+      if (err) {
+        done(err);
+      } else {
         expect(newInstance.name).to.equal(name);
         // console.log('documentName:', documentName);
         decisonFileName = documentName;
@@ -115,10 +111,9 @@ describe("DecisionTable Model Tests", () => {
 
   it('should assert that a find() operation should fetch properties which are hidden', done => {
     DecisionTable.find({}, testContext, (err, results) => {
-      if(err) {
+      if (err) {
         done(err);
-      }
-      else {
+      } else {
         expect(Array.isArray(results)).to.equal.true;
         // expect('length' in results).to.equal.true;
         // console.log(results.length)
@@ -126,7 +121,7 @@ describe("DecisionTable Model Tests", () => {
         var nonExpectantFields = ['decisionRules', 'documentName', 'documentData'];
         results.forEach(item => {
           nonExpectantFields.forEach(field => expect(item.__data, `Object has "${field}" as property`).to.have.property(field));
-        })
+        });
         done();
       }
     });
@@ -135,19 +130,18 @@ describe("DecisionTable Model Tests", () => {
   var accessToken;
   var recordId;
   it('should assert that http GET should normally not contain hidden fields in output response', done => {
-    
     var newUserSpec = {
       port: 3000,
       path: '/api/Users',
       method: 'POST',
       headers: {
-        'Content-Type' : 'application/json'
+        'Content-Type': 'application/json'
       }
     };
     var newUserInfo = { username: 'admin', password: 'admin', email: 'admin@admin.com' };
 
     var loginSpec = clone(newUserSpec);
-    loginSpec.path = '/api/Users/login'
+    loginSpec.path = '/api/Users/login';
 
     var dtGetSpec = {
       path: '/api/DecisionTables',
@@ -161,16 +155,14 @@ describe("DecisionTable Model Tests", () => {
         var data = '';
         loginRes.on('data', d=> data += d.toString('utf8'));
         loginRes.on('end', () => {
-          
           var authToken = JSON.parse(data).id;
           accessToken = authToken;
-          dtGetSpec.path += `?accessToken=${authToken}`
+          dtGetSpec.path += `?accessToken=${authToken}`;
           var getReq = http.request(dtGetSpec, getRes => {
             expect(getRes.statusCode).to.equal(200);
             var data2 = '';
             getRes.on('data', d => data2 += d);
             getRes.on('end', () => {
-
               var getResponse = JSON.parse(data2);
               // console.log('getResponse:', getResponse);
               getResponse.forEach(item => {
@@ -186,7 +178,7 @@ describe("DecisionTable Model Tests", () => {
           });
           getReq.on('error', done);
           getReq.end();
-        });        
+        });
       });
       var loginCredentials = clone(newUserInfo);
       delete loginCredentials.email;
@@ -195,7 +187,7 @@ describe("DecisionTable Model Tests", () => {
       loginReq.end();
     });
     newUserReq.on('error', done);
-    newUserReq.write(JSON.stringify(newUserInfo))
+    newUserReq.write(JSON.stringify(newUserInfo));
     newUserReq.end();
   }).timeout(3000);
 
@@ -212,7 +204,7 @@ describe("DecisionTable Model Tests", () => {
       var i = 0;
       res.on('data', d => {
         // console.log('FRAME:', ++i);
-        data += d.toString('utf8')
+        data += d.toString('utf8');
       });
       res.on('end', () => {
         var response = JSON.parse(data);
@@ -231,19 +223,18 @@ describe("DecisionTable Model Tests", () => {
     var fileContents = fs.readFileSync(path.join(__dirname, 'business-rule-data/DecisionTable.json'), {encoding: 'utf8'});
     var data = JSON.parse(fileContents);
     var {name, document: { documentData } } = data[0];
-    name+=1;
+    name += 1;
     DecisionTable.parseExcel({documentData}, testContext, (err, result) => {
-      if(err) {
-        done(err)
+      if (err) {
+        done(err);
         return;
       }
-      
-      DecisionTable.findOne({ where:{ name }}, testContext, (err, output) => {
-        if(err) {
+
+      DecisionTable.findOne({ where: { name }}, testContext, (err, output) => {
+        if (err) {
           done(err);
-        }
-        else {
-          expect(typeof output.decisionRules).to.equal('string')
+        } else {
+          expect(typeof output.decisionRules).to.equal('string');
           expect(typeof result).to.equal('object');
           rulesObject = JSON.parse(output.decisionRules);
           // expect(Object.keys(result).every( key => result[key] === rulesObject[key] )).to.be.true;
@@ -255,146 +246,13 @@ describe("DecisionTable Model Tests", () => {
   });
 
   it('should insert a decision table json directly (for rule designer use case)', done => {
-    var inputData = {"name":"TestTable","decisionRules":"{\"inputExpressionList\":[\"input\"],\"outputs\":[\"output\"],\"outputValues\":[\"\"],\"ruleList\":[[\"\\\"yes\\\"\",\"true\"],[\"\\\"no\\\"\",\"false\"]],\"hitPolicy\":\"U\",\"inputValues\":[\"\"]}"};
+    var inputData = {'name': 'TestTable', 'decisionRules': '{"inputExpressionList":["input"],"outputs":["output"],"outputValues":[""],"ruleList":[["\\"yes\\"","true"],["\\"no\\"","false"]],"hitPolicy":"U","inputValues":[""]}'};
     DecisionTable.create(inputData, testContext, (err) => {
-      if(err) {
-        done(err)
-      }
-      else {
+      if (err) {
+        done(err);
+      } else {
         done();
       }
-    })
-  });
-
-  it('should assert a decision table update reflects the updated rule', done => {
-    var insert = file => cb => {
-      let contents = null;
-      try {
-        contents = fetchXLSBase64(file);
-      } catch (error) {
-        cb(error);
-        return;
-      }
-
-      let payload = {
-        name: 'Rule1',
-        documentName: 'file1.xlsx',
-        documentData: contents
-      }
-      DecisionTable.create(payload, testContext, (insertError, record) => {
-        if(insertError) {
-          cb(insertError);
-        }
-        else {
-          try {
-            console.log(record._version);
-            expect(record._version).to.be.defined;
-          } catch (error) {
-            cb(error);
-            return;
-          }
-          cb();
-        }
-      });
-    };
-
-    var fetchAndAssert = cb => {
-      DecisionTable.find({ name: 'Rule1'}, testContext, (err, result) => {
-        if(err) {
-          cb(err);
-        }
-        else {
-          try {
-            expect(result[0]._version).to.be.defined;
-          } catch (error) {
-            cb(error);
-            return;
-          }
-          cb();
-        }
-      });
-    }
-    
-    var rulePayload = {
-      gender: 'F',
-      age: 33
-    };
-
-    var executeAndAssert = result => cb => {
-      DecisionTable.exec('Rule1', rulePayload, testContext, (execError, execResult) => {
-        if(execError) {
-          cb(execError);
-        }
-        else {
-          try {
-            expect(execResult.grant).to.equal(result);            
-          } catch (error) {
-            cb(error);
-            return;
-          }
-          cb();
-        }
-      });
-    };
-
-    var updateRule = file => cb => {
-      let contents = null;
-      try {
-        contents = fetchXLSBase64(file)
-      } catch (error) {
-        cb(error)
-        return;
-      }
-
-      var upsertPayload = {
-        name:'Rule1',
-        documentData : contents
-      };
-
-      DecisionTable.findOne({name: 'Rule1'}, testContext, (err, record) => {
-        if(err) {
-          cb(err);
-        }
-        else {
-          expect(record._version).to.be.defined;
-          let cachedVersion = record._version;
-          upsertPayload._version = cachedVersion
-          
-          record.updateAttributes(upsertPayload, testContext, (updateError, updatedRecord) => {
-            if(updateError) {
-              cb(updateError);
-            }
-            else {
-              try {
-                expect(updatedRecord._version).to.not.equal(cachedVersion);
-              } catch (error) {
-                cb(error);
-                return;
-              }
-              cb();
-            }
-          });
-        }
-      })
-
-      
-    };
-
-    async.seq(
-      insert('./test/test-data/filea.xlsx'), 
-      fetchAndAssert,
-      executeAndAssert('hold'), 
-      updateRule('./test/test-data/fileb.xlsx'), 
-      executeAndAssert('allow'))((err) => {        
-        if(err) {
-          done(err)
-        }
-        else {
-          done();
-        }
     });
-
   });
-
-  
 });

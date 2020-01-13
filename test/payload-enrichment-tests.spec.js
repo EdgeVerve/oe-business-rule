@@ -20,13 +20,13 @@ var testModel;
 var testModelWithBase;
 var modelRuleId, modelRuleVersion;
 
-describe("Payload Enrichment Tests", () => {
+describe('Payload Enrichment Tests', () => {
   var DecisionGraph;
   var DecisionTable;
   var DecisionService;
   var EnrichmentRule;
   var ModelDefinition;
-  var decisionTableRules = ['PropertyPopulator', 'PropertyPopulatorOne']
+  var decisionTableRules = ['PropertyPopulator', 'PropertyPopulatorOne'];
   var testContext = {
     ctx: { tenantId: 'test-tenant' }
   };
@@ -94,8 +94,8 @@ describe("Payload Enrichment Tests", () => {
     async.each(decisionTableRules, function (rule, callback) {
       var obj = {
         name: rule,
-        documentName: rule + ".xlsx",
-        documentData: "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,"
+        documentName: rule + '.xlsx',
+        documentData: 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,'
       };
       fs.readFile(path.join(__dirname, 'test-data', obj.documentName), function (err, data) {
         if (err) {
@@ -116,8 +116,10 @@ describe("Payload Enrichment Tests", () => {
         // Creating Desicion Table rules.
         async.each(decisionTablesData, function (decisionTable, callback) {
           DecisionTable.create(decisionTable, testContext, function (err, res) {
-            if (err) log.error(log.defaultContext(), 'async.each->decisionTablesData->models.DecisionTable.create ',
-              'decisionTable ', decisionTable.name, ' Error: ', err);
+            if (err) {
+              log.error(log.defaultContext(), 'async.each->decisionTablesData->models.DecisionTable.create ',
+                'decisionTable ', decisionTable.name, ' Error: ', err);
+            }
             callback(err);
           });
         }, function (decisionTableErr) {
@@ -131,8 +133,8 @@ describe("Payload Enrichment Tests", () => {
   before('create model rules.', function (done) {
     var objs = [{
       modelName: testModelName,
-      rules: [decisionTableRules[0], decisionTableRules[1]],
-    }]
+      rules: [decisionTableRules[0], decisionTableRules[1]]
+    }];
     // debugger;
     EnrichmentRule.create(objs, testContext, function (err, modelRules) {
       modelRuleId = modelRules[0].id;
@@ -171,7 +173,4 @@ describe("Payload Enrichment Tests", () => {
       }
     });
   });
-
-
-
 });
