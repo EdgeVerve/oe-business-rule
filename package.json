@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "async": "2.6.1",
-    "js-feel": "git+http://evgit/oecloud.io/feel.git#1.4.4",
+    "js-feel": "git+http://evgit/oecloud.io/feel.git#1.4.5",
     "oe-common-mixins": "git+http://evgit/oecloud.io/oe-common-mixins.git#2.2.0",
     "serialize-error": "2.0.0"
   },
