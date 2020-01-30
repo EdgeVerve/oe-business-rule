@@ -29,6 +29,10 @@
     "documentName" : {
       "type" : "string",
       "description" : "Name of the file uploaded"
+    },
+    "dtDesignerData":{
+      "type":"object",
+      "description":"Decision Table JSON used by the rule-designer"
     }
   },
   "oeValidations": [],
