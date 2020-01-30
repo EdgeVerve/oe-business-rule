@@ -118,7 +118,7 @@ describe('DecisionTable Model Tests', () => {
         // expect('length' in results).to.equal.true;
         // console.log(results.length)
         expect(results.length >= 1, 'no items in the returned data').to.be.true;
-        var nonExpectantFields = ['decisionRules', 'documentName', 'documentData'];
+        var nonExpectantFields = ['documentName', 'documentData'];
         results.forEach(item => {
           nonExpectantFields.forEach(field => expect(item.__data, `Object has "${field}" as property`).to.have.property(field));
         });
@@ -166,7 +166,7 @@ describe('DecisionTable Model Tests', () => {
               var getResponse = JSON.parse(data2);
               // console.log('getResponse:', getResponse);
               getResponse.forEach(item => {
-                expect(item).to.not.have.property('decisionRules');
+                // expect(item).to.not.have.property('decisionRules');
                 expect(item).to.not.have.property('documentData');
                 expect(item).to.not.have.property('documentName');
               });
