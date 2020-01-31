@@ -191,6 +191,11 @@ module.exports = function decisionTableFn(decisionTable) {
           source: 'path'
         },
         description: 'record id of the corresponding decision or rule name'
+      },
+      {
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest'
       }
     ],
     http: {
@@ -211,6 +216,11 @@ module.exports = function decisionTableFn(decisionTable) {
     accepts: [{
       arg: 'inputData', type: 'object', http: { source: 'body' },
       required: true, description: 'The JSON containing the document data to parse'
+    },
+    {
+      arg: 'options',
+      type: 'object',
+      http: 'optionsFromRequest'
     }
     ],
     http: {
