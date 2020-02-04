@@ -100,7 +100,7 @@ module.exports = function (DecisionService) {
     DecisionService.findOne({ where: { name: name } }, options, (err, result) => {
       if (err) {
         cb(err);
-      } else {
+      } else if (result) {
         var decisions = result.decisions;
         result['decision-graph'](options, (err, graph) => {
           if (err) {
@@ -130,6 +130,12 @@ module.exports = function (DecisionService) {
               .catch(cb);
           }
         });
+      } else {
+        var err1 = new Error(
+          'No Service found for ServiceName ' + name
+        );
+        err1.retriable = false;
+        cb(err1);
       }
     });
   };
