@@ -143,7 +143,7 @@ describe('DecisionTree Model Tests', () => {
       it('Should fail to execute decision tree as decision tree data is not proper', function (done) {
         DecisionTree.exec('invalidDecisionTreeName', {}, testContext, function (err, res) {
           expect(err).not.to.be.undefined;
-          expect(err.message).to.equal('No Name found for Tree Name invalidDecisionTreeName');
+          expect(err.message).to.equal('No Tree found for TreeName invalidDecisionTreeName');
           done();
         });
       });

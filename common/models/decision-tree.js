@@ -19,21 +19,25 @@ module.exports = function (decisionTree) {
         var data = ctx.__data || ctx.instance || ctx.data;
         try {
             var decisionTreeConnectionArray = JSON.parse(JSON.stringify(data.connections));
-            var from_array = [];
             var to_array = [];
-
             decisionTreeConnectionArray.forEach(function (item) {
-                from_array.push(item.from);
                 to_array.push(item.to);
             });
-
-            for (var i in from_array) {
-                if (!to_array.includes(from_array[i])) {
-                    data.rootNodeId = from_array[i];
+            var rootNodeArray = decisionTreeConnectionArray.filter(function (node) {
+                if (!to_array.includes(node.from)) {
+                    return true;
                 }
+            });
+            if (rootNodeArray.length > 1) {
+                next(new Error('Decision tree should not have more than one root node'));
+            }
+            if (rootNodeArray.length > 0) {
+                data.rootNodeId = rootNodeArray[0].from;
+            }
+            if (data.rootNodeId === undefined || data.rootNodeId === '' || data.rootNodeId === null) {
+                next(new Error('Decision tree root node should not be empty or null'));
             }
             next();
-
         } catch (err) {
             log.error(ctx.options, 'Error - Unable to process decision tree data -', err);
             next(new Error('Decision tree data provided could not be parsed, please provide proper data'));
@@ -85,10 +89,8 @@ module.exports = function (decisionTree) {
         options,
         callback
     ) {
-        // var businessRuleEngine = 'evBusinessRule';
         if (typeof callback === 'undefined') {
             if (typeof options === 'function') {
-                // execrule (documentName, data, callback)
                 callback = options;
                 options = {};
             }
@@ -129,21 +131,30 @@ module.exports = function (decisionTree) {
                     var root = '';
                     var nodes = [];
                     var connections = [];
-                 
-                    if (decisionTreeData[0].rootNodeId !== null) {
+
+                    if (decisionTreeData[0].rootNodeId !== null && decisionTreeData[0].rootNodeId !== undefined && decisionTreeData[0].rootNodeId !== '') {
                         root = decisionTreeData[0].rootNodeId;
                     }
-                    if (decisionTreeData[0].nodes !== null) {
+                    if (decisionTreeData[0].nodes.length > 0) {
                         nodes = decisionTreeData[0].nodes;
                     }
-                    if (decisionTreeData[0].connections !== null) {
+                    if (decisionTreeData[0].connections.length > 0) {
                         connections = decisionTreeData[0].connections;
                     }
-                    traverseDecisionTree(root, nodes, connections, data, {}, options, callback);
+                    if (nodes.length > 0) {
+                        traverseDecisionTree(root, nodes, connections, data, {}, options, callback);
+                    }
+                    else {
+                        var err1 = new Error(
+                            'No Nodes found for TreeName ' + name
+                        );
+                        err1.retriable = false;
+                        callback(err1);
+                    }
 
                 } else {
                     var err1 = new Error(
-                        'No Name found for Tree Name ' + name
+                        'No Tree found for TreeName ' + name
                     );
                     err1.retriable = false;
                     callback(err1);
@@ -152,79 +163,79 @@ module.exports = function (decisionTree) {
         );
     };
 
-
-
-
     function traverseDecisionTree(root, nodes, connections, payload, result, options, done) {
-        var updatedPayload = {};
-        for (var k in nodes) {
-            var ob = nodes[k];
+        try {
+            var updatedPayload = {};
 
-            if (ob.id === root) {
-                var rootName = ob.name;
-                if (ob.nodeType !== 'DECISION_TABLE') {
-                    updatedPayload = payload;
-                    for (var i in connections) {
+            var node = nodes.filter(function (node) {
+                return node.id === root;
+            });
 
-                        var obj = connections[i];
-                        if (root === obj.from) {
-                            if (obj.condition === "" || obj.condition === null) {
-                                return traverseDecisionTree(obj.to, nodes, connections, updatedPayload, result, options, done);
+            var rootName = node[0].name;
+            if (node[0].nodeType !== 'DECISION_TABLE') {
+                updatedPayload = payload;
+                var filteredConnections = connections.filter(function (connection) {
+                    return connection.from === root;
+                });
+                if (filteredConnections.length > 0) {
+                    traverseDecisionTreeUtil(nodes, filteredConnections, connections, updatedPayload, result, options, done);
+                }
+                else {
+                    return done(null, result);
+                }
+            }
+            else
+                if (node[0].nodeType === 'DECISION_TABLE') {
+                    var DecisionTreeModel = loopback.getModel('DecisionTable', options);
+                    DecisionTreeModel.exec(rootName, payload, options, function (err, res) {
+                        if (err) {
+                            log.error(options, err.message);
+                        }
+                        updatedPayload = Object.assign(payload, res);
+                        result = Object.assign(result, res);
+                        var filteredConnections = connections.filter(function (connection) {
+                            return connection.from === root;
+                        });
+                        if (filteredConnections.length > 0) {
+                            traverseDecisionTreeUtil(nodes, filteredConnections, connections, updatedPayload, result, options, done);
+                        }
+                        else
+                            if (err) {
+                                return done(err, null);
                             }
                             else {
-                                var isValid = evaluateCondition(updatedPayload, obj.condition);
-                                if (isValid) {
-
-                                    return traverseDecisionTree(obj.to, nodes, connections, updatedPayload, result, options, done);
-                                }
+                                return done(null, result);
                             }
-                        }
-                    }
+
+                    });
                 }
-                else
-                    if (ob.nodeType === 'DECISION_TABLE') {
-                        var DecisionTreeModel = loopback.getModel('DecisionTable', options);
-                        DecisionTreeModel.exec(rootName, payload, options, function (err, res) {
-                            if (err) {
-                                log.error(options, err.message);
-                            }
-                            updatedPayload = Object.assign(payload, res);
-                            result = Object.assign(result, res);
 
-                            for (var i in connections) {
-                                var obj = connections[i];
-                                if (root === obj.from) {
-                                    if (obj.condition === "" || obj.condition === null) {
-
-                                        return traverseDecisionTree(obj.to, nodes, connections, updatedPayload, result, options, done);
-                                    }
-                                    else {
-                                        var isValid = evaluateCondition(updatedPayload, obj.condition);
-                                        if (isValid) {
-                                            return traverseDecisionTree(obj.to, nodes, connections, updatedPayload, result, options, done);
-                                        }
-                                    }
-                                }
-                            }
-
-                            return done(null, result);
-                        });
-                    }
-            }
+        } catch (error) {
+            console.log(error);
         }
+
+    }
+
+    function traverseDecisionTreeUtil(nodes, currrentNodeConnections, connections, payload, result, options, done) {
+        var node = currrentNodeConnections.find(function (node) {
+            if (node.condition === "" || node.condition === null) {
+                return true;
+            }
+            else {
+                var isValid = evaluateCondition(payload, node.condition);
+                if (isValid) {
+                    return true;
+                }
+            }
+        });
+        return traverseDecisionTree(node.to, nodes, connections, payload, result, options, done);
     }
 
     function evaluateCondition(payload, condition) {
-
-     /*   var sandbox = {
-            payload: payload
-        };*/
-        var sandbox = payload;
-        var context = new vm.createContext(sandbox);
+        var context = new vm.createContext(payload);
         var compiledScript = new vm.Script("this.output = (" + condition + ");");
         compiledScript.runInContext(context);
         return context.output;
-
     }
 
 };
