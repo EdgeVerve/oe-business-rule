@@ -11,18 +11,17 @@ var log = logger('decision-tree');
 var loopback = require('loopback');
 const vm = require('vm');
 
-
 module.exports = function (decisionTree) {
   decisionTree.observe('before save', function decisionTreeBeforeSave(ctx, next) {
     var data = ctx.__data || ctx.instance || ctx.data;
     try {
-      var decisionTreeConnectionArray = JSON.parse(JSON.stringify(data.connections));
-      var toArray = [];
-      decisionTreeConnectionArray.forEach(function (item) {
-        toArray.push(item.to);
-      });
+      var decisionTreeConnectionArray = data.connections;
+      let toSet = new Set();
       var rootNodeArray = decisionTreeConnectionArray.filter(function (node) {
-        if (!toArray.includes(node.from)) {
+        decisionTreeConnectionArray.forEach(element => {
+          toSet.add(element.to);
+        });
+        if (!toSet.has(node.from)) {
           return true;
         }
       });
