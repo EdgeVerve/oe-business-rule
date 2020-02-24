@@ -183,8 +183,9 @@ Post below data to `/api/DecisionTrees/`
 ]
 ````
 
-`Graphical representation of above posted model`
- ![decision-tree-graphical-representation](./test/test-data/decision-tree-example.png)
+ Graphical representation of above posted model
+
+![decision-tree-graphical-representation](./test/test-data/decision-tree-example.png)
 
  To execute this, we call the `DecisionTree.exec` remote method or make a POST to `/api/DecisionTrees/exec` 
 with the payload and the name of the tree.
