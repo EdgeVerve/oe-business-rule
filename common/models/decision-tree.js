@@ -16,15 +16,16 @@ module.exports = function (decisionTree) {
     var data = ctx.__data || ctx.instance || ctx.data;
     try {
       var decisionTreeConnectionArray = data.connections;
-      let toSet = new Set();
-      var rootNodeArray = decisionTreeConnectionArray.filter(function (node) {
-        decisionTreeConnectionArray.forEach(element => {
-          toSet.add(element.to);
+      var rootNodeArray = decisionTreeConnectionArray.filter((cxn, idx) => {
+        let isJoined = decisionTreeConnectionArray.some((cxn2, id) => {
+          if (idx === id) {
+            return false;
+          }
+          return cxn2.to === cxn.from;
         });
-        if (!toSet.has(node.from)) {
-          return true;
-        }
+        return !isJoined;
       });
+
       if (rootNodeArray.length > 1) {
         next(new Error('Decision tree should not have more than one root node'));
       }
@@ -165,8 +166,7 @@ module.exports = function (decisionTree) {
         } else {
           return done(null, result);
         }
-      } else
-      if (curnode.nodeType === 'DECISION_TABLE') {
+      } else if (curnode.nodeType === 'DECISION_TABLE') {
         var DecisionTreeModel = loopback.getModel('DecisionTable', options);
         DecisionTreeModel.exec(rootName, payload, options, function (err, res) {
           if (err) {
@@ -199,7 +199,7 @@ module.exports = function (decisionTree) {
 
   function evaluateCondition(payload, condition) {
     // eslint-disable-next-line
-        var context = new vm.createContext(payload);
+    var context = new vm.createContext(payload);
     var compiledScript = new vm.Script('this.output = (' + condition + ');');
     compiledScript.runInContext(context);
     return context.output;
