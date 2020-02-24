@@ -19,5 +19,9 @@
   "EnrichmentRule" : {
     "public": true,
     "dataSource" : "db"
+  },
+  "DecisionTree": {
+    "public": true,
+    "dataSource": "db"
   }
 }
