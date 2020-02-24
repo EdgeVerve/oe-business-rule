@@ -3,7 +3,7 @@
 ## Introduction
 
 This oe-cloud module implements the business rule functionality. The most common way to represent a rule is via **decision tables**. 
-We additionally allow rules to be represented hierarchially via a concept called **decision graphs and services**. Both are accessed 
+We additionally allow rules to be represented hierarchially via a concept called **decision graphs, decision services and tree**. All are accessed 
 through different APIs. 
 
 This module extensively makes use of js-feel business rule engine.
@@ -18,6 +18,8 @@ But, you require a full-fledged designer to compose decision graphs. This lets y
 oe-cloud module on its own. Alternatively, you can work with excel files for representing decision graphs and services, however, 
 they will not give you the visual experience required, and, it becomes tedious to understand the relationship between various 
 decision elements. However, decision graphs and services provide for a powerful and complex rule representations.
+
+There is a way to execute a chain of decision rules via a concept called **decision tree**. Decision Tree uses the tree representation to solve the problem in which each node is either a *decision table* or *decision gate*. Based on the branch conditions, rules are executed. This can be invoked through `DecisionTree.exec` remote method.
 
 ## How are rules actually implemented?
 
@@ -91,6 +93,26 @@ with the payload and the name of the rule
 ### 2. Decision Graphs and Services
 
 #### Example
+
+
+### 3. Decision Tree
+
+To insert a decision tree, we post JSON as follows to the **DecisionTree** model.
+
+```
+[
+  {
+    "name": "<TreeName>",
+    "nodes": "<Array_of_objects_comprising_of_DecisionTables_and_DecisionGates>",
+    "connections": "<Array_of_objects_showing_connections_between_different_nodes>"
+  }
+]
+```
+> Note: If done via HTTP, we do a POST to `/api/DecisionTrees/`
+
+To execute this, we call the `DecisionTree.exec` remote method or make a POST to `/api/DecisionTrees/exec` 
+with the payload and the name of the tree.
+
 
 
 ## Towards standardization
