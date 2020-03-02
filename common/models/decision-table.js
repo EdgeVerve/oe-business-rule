@@ -42,7 +42,7 @@ module.exports = function decisionTableFn(decisionTable) {
         log.error(ctx.options, 'Error - Unable to process decision table data -', err);
         next(new Error('Decision table data provided could not be parsed, please provide proper data'));
       }
-    } else if ( 'decisionRules' in data) {
+    } else if ('decisionRules' in data) {
       next();
     } else {
       next(new Error('Data being posted is incorrect. Either an excel file was expected for property - documentData, or, a parsed decision table object was expected for property - decisionRules'));
@@ -168,7 +168,7 @@ module.exports = function decisionTableFn(decisionTable) {
     options = options || {};
     cb = cb || utils.createPromiseCallback();
 
-    decisionTable.findOne({ where: { id: recordId }}, options, function dtFineOneCb(err, result) {
+    decisionTable.findOne({ where: { id: recordId } }, options, function dtFineOneCb(err, result) {
       if (err) {
         return cb(err);
       }
@@ -178,6 +178,30 @@ module.exports = function decisionTableFn(decisionTable) {
       return cb(null, { name: documentName, data: documentData });
     });
   };
+
+  const getFormattedValue = str => str.replace(/\"{2,}/g, '\"').replace(/^\"|\"$/g, '');
+
+  function parseContext(commaSepString) {
+    const csv = commaSepString.split('\n');
+    let context = {};
+    let i = 1;
+
+    for (; i < csv.length; i += 1) {
+      const arr = csv[i].split(delimiter).filter(String);
+      if (arr.length > 0 && arr[0] === 'RuleTable') {
+        break;
+      } else if (arr.length > 0) {
+        const count = arr[1].split('"').length - 1;
+        if (count > 0) {
+          arr[1] = getFormattedValue(arr[1]);
+        }
+        context[arr[0]] = arr[1];
+      }
+    }
+    // context = Object.keys(context).length > 0 ? JSON.stringify(context).replace(/"/g, '').replace(/\\/g, '"') : '';
+    // return context.length > 0 ? context : null;
+    return context;
+  }
 
   decisionTable.remoteMethod('document', {
     description: 'retrieve the excel file document of the corresponding decision (as base64 only)',
@@ -257,6 +281,7 @@ module.exports = function decisionTableFn(decisionTable) {
     var sheet = workbook.Sheets[workbook.SheetNames[0]];
     var csv = XLSX.utils.sheet_to_csv(sheet, { FS: delimiter });
     var decisionRules = dTable.csv_to_decision_table(csv);
-    cb(null, decisionRules);
+    var contextObj = parseContext(csv);
+    cb(null, { decisionRules, contextObj });
   };
 };

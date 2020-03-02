@@ -222,15 +222,22 @@ describe('DecisionTable Model Tests', () => {
   it('should be able to retrieve the parsed representation of an excel file containing a decision table', done => {
     var fileContents = fs.readFileSync(path.join(__dirname, 'business-rule-data/DecisionTable.json'), {encoding: 'utf8'});
     var data = JSON.parse(fileContents);
-    var {name, document: { documentData } } = data[0];
-    name += 1;
+    // var {name, document: { documentData } } = data[3];
+    var testData = data[3];
+    var { document, name } = testData;
+    var { documentData } = document;
+
+    var expectedContext = {
+      "getAmount" : "function(a,b,c,d) if d > a then min([d - a, b - a])*c else 0"
+    }
+    
     DecisionTable.parseExcel({documentData}, testContext, (err, result) => {
       if (err) {
         done(err);
         return;
-      }
+      }     
 
-      DecisionTable.findOne({ where: { name }}, testContext, (err, output) => {
+      DecisionTable.create({ name, ...document }, testContext, (err, output) => {
         if (err) {
           done(err);
         } else {
@@ -238,9 +245,10 @@ describe('DecisionTable Model Tests', () => {
           expect(typeof result).to.equal('object');
           rulesObject = JSON.parse(output.decisionRules);
           // expect(Object.keys(result).every( key => result[key] === rulesObject[key] )).to.be.true;
-          expect(result).to.deep.equal(rulesObject);
+          expect(result.decisionRules).to.deep.equal(rulesObject);
+          expect(result.contextObj).to.deep.equal(expectedContext);
           done();
-        }
+        }  
       });
     });
   });
