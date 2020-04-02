@@ -173,4 +173,28 @@ describe('Payload Enrichment Tests', () => {
       }
     });
   });
+
+  it('should successfully update a property based on a business rule', done => {
+    var toInsert = {
+      status: 'entered',
+      age: 50,
+      husband_name: 'Robin',
+      email: 'jango@gmail.com'
+    };
+
+    testModel.create(toInsert, testContext, function (err, res) {
+      if (err) {
+        // console.error("model-rule-test Error ", err);
+        done(err);
+      } else {
+        expect(res).not.to.be.null;
+        expect(res).not.to.be.undefined;
+        expect(res.sex).to.be.equal('F');
+        expect(res.married).to.be.equal(true);
+        expect(res.phone).to.be.equal(1234);
+        expect(res.email).to.be.equal('abc');
+        done();
+      }
+    });
+  });
 });
