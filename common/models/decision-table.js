@@ -288,25 +288,25 @@ module.exports = function decisionTableFn(decisionTable) {
   };
 
 
-  //remote method declaration for getExcel
+  // remote method declaration for getExcel
   decisionTable.remoteMethod('getExcel', {
     description: 'Generates an excel file response, given a json description for a decision table from the rule designer',
     accessType: 'WRITE',
-    isStatic : true,
+    isStatic: true,
     accepts: [
       {
         arg: 'dtJson',
         type: 'object',
         http: { source: 'body' },
         required: true,
-        description: "The JSON containing the decision table description from rule designer"
+        description: 'The JSON containing the decision table description from rule designer'
       }
     ],
     http: {
       verb: 'POST',
       path: '/getExcel'
     },
-    returns : [
+    returns: [
       {
         type: 'file',
         root: true,
@@ -323,9 +323,9 @@ module.exports = function decisionTableFn(decisionTable) {
   decisionTable.getExcel = function (dtJson, options, cb) {
     try {
       let buff = generateExcelBuffer(dtJson);
-      cb(null, buff, 'application/octet-stream')
+      cb(null, buff, 'application/octet-stream');
     } catch (error) {
-      cb(error)
+      cb(error);
     }
   };
 };
