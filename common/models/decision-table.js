@@ -321,6 +321,10 @@ module.exports = function decisionTableFn(decisionTable) {
   });
 
   decisionTable.getExcel = function (dtJson, options, cb) {
+    if(typeof cb === 'undefined' && typeof option === 'function') {
+      cb = options;
+      options = {};
+    }
     try {
       let buff = generateExcelBuffer(dtJson);
       cb(null, buff, 'application/octet-stream');

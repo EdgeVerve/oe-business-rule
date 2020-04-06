@@ -325,8 +325,8 @@ describe('DecisionTable Model Tests', () => {
       }
       else {
         // console.dir(resp);
-        expect(buffer).to.be.instanceOf(Buffer);
-        expect(contentType).to.be.equal('application/octet-stream');
+        expect(buffer).to.be.instanceOf(String);
+        expect(contentType).to.be.equal('text/plain');
         done();
       }
     });
