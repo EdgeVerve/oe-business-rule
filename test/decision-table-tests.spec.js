@@ -3,6 +3,7 @@ var chai = require('chai');
 chai.use(require('chai-things'));
 var loopback = require('loopback');
 var expect = chai.expect;
+var assert = chai.assert;
 var fs = require('fs');
 var path = require('path');
 var bootstrapped = require('./bootstrapper');
@@ -89,10 +90,10 @@ describe('DecisionTable Model Tests', () => {
   });
   var decisonFileName;
   var decisionName;
-  it('should insert a decision from an excel file which is valid', done =>{
-    var fileContents = fs.readFileSync(path.join(__dirname, 'business-rule-data/DecisionTable.json'), {encoding: 'utf8'});
+  it('should insert a decision from an excel file which is valid', done => {
+    var fileContents = fs.readFileSync(path.join(__dirname, 'business-rule-data/DecisionTable.json'), { encoding: 'utf8' });
     var data = JSON.parse(fileContents);
-    var { name, document: { documentData, documentName }} = data[0];
+    var { name, document: { documentData, documentName } } = data[0];
     name += '1';
     decisionName = name;
     var record = { name, documentData, documentName };
@@ -153,7 +154,7 @@ describe('DecisionTable Model Tests', () => {
       var loginReq = http.request(loginSpec, loginRes => {
         expect(loginRes.statusCode).to.equal(200);
         var data = '';
-        loginRes.on('data', d=> data += d.toString('utf8'));
+        loginRes.on('data', d => data += d.toString('utf8'));
         loginRes.on('end', () => {
           var authToken = JSON.parse(data).id;
           accessToken = authToken;
@@ -171,7 +172,7 @@ describe('DecisionTable Model Tests', () => {
                 expect(item).to.not.have.property('documentName');
               });
               // recordId = getResponse[0].id; //since there is only one at this point...
-              recordId = getResponse.filter(x => x.name === decisionName )[0].id;
+              recordId = getResponse.filter(x => x.name === decisionName)[0].id;
               expect(recordId).to.be.defined;
               done();
             });
@@ -220,7 +221,7 @@ describe('DecisionTable Model Tests', () => {
   }).timeout(120000);
 
   it('should be able to retrieve the parsed representation of an excel file containing a decision table', done => {
-    var fileContents = fs.readFileSync(path.join(__dirname, 'business-rule-data/DecisionTable.json'), {encoding: 'utf8'});
+    var fileContents = fs.readFileSync(path.join(__dirname, 'business-rule-data/DecisionTable.json'), { encoding: 'utf8' });
     var data = JSON.parse(fileContents);
     // var {name, document: { documentData } } = data[3];
     var testData = data[3];
@@ -228,14 +229,14 @@ describe('DecisionTable Model Tests', () => {
     var { documentData } = document;
 
     var expectedContext = {
-      "getAmount" : "function(a,b,c,d) if d > a then min([d - a, b - a])*c else 0"
+      "getAmount": "function(a,b,c,d) if d > a then min([d - a, b - a])*c else 0"
     }
-    
-    DecisionTable.parseExcel({documentData}, testContext, (err, result) => {
+
+    DecisionTable.parseExcel({ documentData }, testContext, (err, result) => {
       if (err) {
         done(err);
         return;
-      }     
+      }
 
       DecisionTable.create({ name, ...document }, testContext, (err, output) => {
         if (err) {
@@ -248,13 +249,13 @@ describe('DecisionTable Model Tests', () => {
           expect(result.decisionRules).to.deep.equal(rulesObject);
           expect(result.contextObj).to.deep.equal(expectedContext);
           done();
-        }  
+        }
       });
     });
   });
 
   it('should insert a decision table json directly (for rule designer use case)', done => {
-    var inputData = {'name': 'TestTable', 'decisionRules': '{"inputExpressionList":["input"],"outputs":["output"],"outputValues":[""],"ruleList":[["\\"yes\\"","true"],["\\"no\\"","false"]],"hitPolicy":"U","inputValues":[""]}'};
+    var inputData = { 'name': 'TestTable', 'decisionRules': '{"inputExpressionList":["input"],"outputs":["output"],"outputValues":[""],"ruleList":[["\\"yes\\"","true"],["\\"no\\"","false"]],"hitPolicy":"U","inputValues":[""]}' };
     DecisionTable.create(inputData, testContext, (err) => {
       if (err) {
         done(err);
@@ -262,5 +263,74 @@ describe('DecisionTable Model Tests', () => {
         done();
       }
     });
+  });
+
+  it('should download an excel file when supplied a json description of a data table (designer use case)', function (done) {
+    var dtDesc = {
+      "name": "My table",
+      "inputExpressionList": [
+        {
+          "label": "Eligibility",
+          "expr": "eligibility",
+          "type": "number",
+          "values": ""
+        },
+        {
+          "label": "Loan Type",
+          "expr": "loanType",
+          "type": "string",
+          "values": ""
+        }
+      ],
+      "outputs": [
+        {
+          "label": "valid",
+          "expr": "Valid",
+          "type": "boolean",
+          "values": ""
+        }
+      ],
+      "hitPolicy": "U",
+      "ruleList": [
+        [
+          "<=100",
+          "-",
+          "true"
+        ],
+        [
+          ">100",
+          "\"CAR_LOAN\"",
+          "false"
+        ],
+        [
+          ">100",
+          "-",
+          "true"
+        ]
+      ],
+      "contextArray": [
+        {
+          "key": "exp",
+          "value": "customer.experience"
+        },
+        {
+          "key": "eligibility",
+          "value": "myFunc(exp,customer.amount)"
+        }
+      ]
+    };
+
+    DecisionTable.getExcel(dtDesc, testContext, function(err, base64String){
+      if(err) {
+        done(err)
+      }
+      else {
+        // console.dir(resp);
+        // expect(base64String).to.be.instanceOf(String);
+        assert.typeOf(base64String, 'string');
+        done();
+      }
+    });
+
   });
 });

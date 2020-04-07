@@ -13,6 +13,9 @@ var assert = require('assert');
 // var loopback = require('loopback');
 var logger = require('oe-logger');
 var log = logger('decision-table');
+var { generateExcelBuffer } = require('../../lib/excel-helper');
+var prefix = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,';
+
 // var getError = require('oe-cloud/lib/error-utils').getValidationError;
 var delimiter = '&SP';
 
@@ -283,5 +286,48 @@ module.exports = function decisionTableFn(decisionTable) {
     var decisionRules = dTable.csv_to_decision_table(csv);
     var contextObj = parseContext(csv);
     cb(null, { decisionRules, contextObj });
+  };
+
+
+  // remote method declaration for getExcel
+  decisionTable.remoteMethod('getExcel', {
+    description: 'Generates an excel file response, given a json description for a decision table from the rule designer',
+    accessType: 'WRITE',
+    isStatic: true,
+    accepts: [
+      {
+        arg: 'dtJson',
+        type: 'object',
+        http: { source: 'body' },
+        required: true,
+        description: 'The JSON containing the decision table description from rule designer'
+      }
+    ],
+    http: {
+      verb: 'POST',
+      path: '/getExcel'
+    },
+    returns: [
+      {
+        type: 'string',
+        root: true,
+        arg: 'body',
+        description: 'base64 encoded string which encodes the generated excel file'
+      }
+    ]
+  });
+
+  decisionTable.getExcel = function (dtJson, options, cb) {
+    if (typeof cb === 'undefined' && typeof options === 'function') {
+      cb = options;
+      options = {};
+    }
+    try {
+      let buff = generateExcelBuffer(dtJson);
+      let base64Data = prefix + buff.toString('base64');
+      cb(null, base64Data);
+    } catch (error) {
+      cb(error);
+    }
   };
 };
