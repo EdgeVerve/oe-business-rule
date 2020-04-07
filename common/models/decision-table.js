@@ -14,6 +14,7 @@ var assert = require('assert');
 var logger = require('oe-logger');
 var log = logger('decision-table');
 var { generateExcelBuffer } = require('../../lib/excel-helper');
+var prefix = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,';
 
 // var getError = require('oe-cloud/lib/error-utils').getValidationError;
 var delimiter = '&SP';
@@ -308,14 +309,10 @@ module.exports = function decisionTableFn(decisionTable) {
     },
     returns: [
       {
-        type: 'file',
-        root: true,
-        arg: 'body'
-      },
-      {
-        arg: 'Content-Type',
         type: 'string',
-        http: { target: 'header' }
+        root: true,
+        arg: 'body',
+        description: 'base64 encoded string which encodes the generated excel file'
       }
     ]
   });
@@ -327,9 +324,11 @@ module.exports = function decisionTableFn(decisionTable) {
     }
     try {
       let buff = generateExcelBuffer(dtJson);
-      cb(null, buff, 'application/octet-stream');
+      let base64Data = prefix + buff.toString('base64');
+      cb(null, base64Data);
     } catch (error) {
       cb(error);
     }
   };
 };
+;
