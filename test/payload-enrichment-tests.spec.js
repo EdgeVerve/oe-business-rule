@@ -173,7 +173,8 @@ describe('Payload Enrichment Tests', () => {
       }
     });
   });
-
+  var id = null;
+  var version = null;
   it('should successfully update a property based on a business rule', done => {
     var toInsert = {
       status: 'entered',
@@ -187,6 +188,8 @@ describe('Payload Enrichment Tests', () => {
         // console.error("model-rule-test Error ", err);
         done(err);
       } else {
+        // console.dir(res.id.toString())
+        id = res.id.toString();
         expect(res).not.to.be.null;
         expect(res).not.to.be.undefined;
         expect(res.sex).to.be.equal('F');
@@ -197,4 +200,28 @@ describe('Payload Enrichment Tests', () => {
       }
     });
   });
+
+  it('should update the property when a model instance is being updated', done => {
+    if (id) {
+      testModel.upsert({ id, age: 9, status: 'accepted' }, testContext, function (err, res) {
+        if (err) {
+          done(err)
+        }
+        else {
+          expect(res).not.to.be.null;
+          expect(res).not.to.be.undefined;
+          expect(res.sex).to.be.equal('M');
+          expect(res.married).to.be.equal(false);
+          expect(res.phone).to.be.equal(5678);
+          expect(res.email).to.be.equal('def');
+          done();
+        }
+      })
+    }
+    else {
+      done(new Error("Previous test failed"));
+    }
+  });
+
+
 });

@@ -3,6 +3,7 @@ var chai = require('chai');
 chai.use(require('chai-things'));
 var loopback = require('loopback');
 var expect = chai.expect;
+var assert = chai.assert;
 var fs = require('fs');
 var path = require('path');
 var bootstrapped = require('./bootstrapper');
@@ -319,14 +320,14 @@ describe('DecisionTable Model Tests', () => {
       ]
     };
 
-    DecisionTable.getExcel(dtDesc, testContext, function(err, buffer, contentType){
+    DecisionTable.getExcel(dtDesc, testContext, function(err, base64String){
       if(err) {
         done(err)
       }
       else {
         // console.dir(resp);
-        expect(buffer).to.be.instanceOf(Buffer);
-        expect(contentType).to.be.equal('application/octet-stream');
+        // expect(base64String).to.be.instanceOf(String);
+        assert.typeOf(base64String, 'string');
         done();
       }
     });
