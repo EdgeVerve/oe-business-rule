@@ -318,7 +318,7 @@ module.exports = function decisionTableFn(decisionTable) {
   });
 
   decisionTable.getExcel = function (dtJson, options, cb) {
-    if(typeof cb === 'undefined' && typeof options === 'function') {
+    if (typeof cb === 'undefined' && typeof options === 'function') {
       cb = options;
       options = {};
     }
@@ -331,4 +331,3 @@ module.exports = function decisionTableFn(decisionTable) {
     }
   };
 };
-;
