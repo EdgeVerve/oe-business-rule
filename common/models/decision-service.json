@@ -31,5 +31,8 @@
   },
   "cacheable": true,
   "acls": [],
-  "methods": {}
+  "methods": {},
+  "mixins" : {
+    "VersionMixin" : false
+  }
 }

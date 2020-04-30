@@ -11,7 +11,7 @@ var DL = jsFeel.decisionLogic;
 var logger = require('oe-logger');
 var log = logger('decision-graph');
 var serialize = require('serialize-error');
-
+var uuid = require('uuid');
 var { createDecisionGraphAST, executeDecisionService } = jsFeel.decisionService;
 
 
@@ -44,10 +44,10 @@ module.exports = function (DecisionGraph) {
     var decisionMap = inputData.jsonFeel;
     var decisions = inputData.decisions;
     var payload = inputData.payload;
-
+    var guid = uuid();
     var ast = createDecisionGraphAST(decisionMap);
-
-    var promises = decisions.map(d => executeDecisionService(ast, d, payload));
+    // adding a random graph name - meant for app when in dev mode...
+    var promises = decisions.map(d => executeDecisionService(ast, d, payload, guid));
 
     Promise.all(promises).then(answers => {
       cb(null, answers);

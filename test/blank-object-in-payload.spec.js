@@ -6,7 +6,7 @@
  */
 /* jshint -W024 */
 /* jshint expr:true */
-//to avoid jshint errors for expect
+// to avoid jshint errors for expect
 
 var bootstrapped = require('./bootstrapper');
 var chalk = require('chalk');
@@ -21,16 +21,16 @@ var clone = require('deepcopy');
 describe(chalk.blue('Blank payload tests'), function () {
   var DecisionTable, Customer;
   var testContext = { ctx: { tenantId: 'test-tenant' }};
-  before('wait for boot', function(done) {
+  before('wait for boot', function (done) {
     bootstrapped.then(() => {
       DecisionTable = loopback.findModel('DecisionTable');
       Customer = loopback.findModel('Customer');
-      
+
       expect(DecisionTable).to.not.be.undefined;
       expect(Customer).to.not.be.undefined;
       done();
     });
-  }); 
+  });
 
   before('inserting some initial data', function (done) {
     var data = [
@@ -58,7 +58,7 @@ describe(chalk.blue('Blank payload tests'), function () {
   });
 
   // the below before block throws errors for oracledb as database - hence commenting
-  
+
   // before('get convinced that model data insertion does not throw an error for insertion of record with amount as blank string', function (done) {
   //   var data = {
   //     name: 'foo4',
@@ -73,7 +73,6 @@ describe(chalk.blue('Blank payload tests'), function () {
   // });
 
   before('create a decision table', function (done) {
-    
     var docData = fetchXLSBase64(path.resolve(path.join(__dirname, 'test-data/blank_object.xlsx')));
     var docData2 = fetchXLSBase64(path.resolve(path.join(__dirname, 'test-data/blank_object2.xlsx')));
     var docData3 = fetchXLSBase64(path.resolve(path.join(__dirname, 'test-data/blank_object3.xlsx')));
@@ -108,9 +107,8 @@ describe(chalk.blue('Blank payload tests'), function () {
       var toInsert = {name, documentName, documentData };
       DecisionTable.create(toInsert, context, function (err) {
         if (err) {
-          reject(err)
-        }
-        else {
+          reject(err);
+        } else {
           resolve();
         }
       });
@@ -120,7 +118,6 @@ describe(chalk.blue('Blank payload tests'), function () {
   });
 
   it('should execute the decision table rule correctly - test 1', function (done) {
-    
     Customer.findOne({ where: { name: 'foo' } }, testContext, function (err, result) {
       expect(result.name).to.equal('foo');
       expect(result.amount.value).to.equal(250);
@@ -137,9 +134,8 @@ describe(chalk.blue('Blank payload tests'), function () {
         if (err) {
           // console.log('error')
           // console.dir(err);
-          done(err)
-        }
-        else {
+          done(err);
+        } else {
           // console.log('pass')
           // console.dir(dtResult);
           expect(dtResult).to.be.array;
@@ -147,16 +143,13 @@ describe(chalk.blue('Blank payload tests'), function () {
           done();
         }
         // expect(dtResult)
-
       });
     });
   });
 
 
   it('should fail to execute the decision table rule correctly - test 2 - because we are trying to fetch non-existent property on an object', function (done) {
-    
     Customer.findOne({ where: { name: 'foo3' } }, testContext, function (err, result) {
-
       expect(result.name).to.equal('foo3');
       var payload = result.__data;
       payload.options = testContext;
@@ -165,8 +158,7 @@ describe(chalk.blue('Blank payload tests'), function () {
       DecisionTable.exec('TestDecision3', payload, testContext, function (err) {
         if (err) {
           done();
-        }
-        else {
+        } else {
           done(new Error('Should not pass'));
         }
       });
@@ -183,15 +175,14 @@ describe(chalk.blue('Blank payload tests'), function () {
         DecisionTable.exec('TestDecision4', payload, testContext, function (err, dtResult) {
           if (err) {
             // console.log('ValidationResult:', err);
-            reject(err)
-          }
-          else {
+            reject(err);
+          } else {
             // console.log('reject')
             // console.log(arguments);
             resolve(dtResult);
           }
-        })
-      })
+        });
+      });
     };
     // debugger;
     Customer.find({}, testContext, function (err, results) {
@@ -199,9 +190,7 @@ describe(chalk.blue('Blank payload tests'), function () {
       // expect(results.map).to.be.function;
       if (err) {
         done(err);
-      }
-      else {
-
+      } else {
         // expect(results.length).to.equal(4);
         // console.log('records:', inspect(results));
         var promises = results.map(r => {
@@ -213,13 +202,12 @@ describe(chalk.blue('Blank payload tests'), function () {
 
 
         Promise.all(promises).then(function (responses) {
-
           // console.log('responses:', inspect(responses));
           // console.log('responses:', responses);
           responses.forEach(resp => {
             // expect(resp[0].errorCode).to.not.equal('JS_FEEL_ERR');
             if (resp.length) {
-              expect(resp[0].errCode).to.not.equal('JS_FEEL_ERR')
+              expect(resp[0].errCode).to.not.equal('JS_FEEL_ERR');
             }
           });
           done();
@@ -228,7 +216,6 @@ describe(chalk.blue('Blank payload tests'), function () {
           done(e);
         });
       }
-
     });
   });
 

@@ -35,5 +35,8 @@
   "validations": [],  
   "acls": [],
   "methods": {},
-  "hidden": ["decisionRules", "documentData", "documentName"]
+  "hidden": ["decisionRules", "documentData", "documentName"],
+  "mixins" : {
+    "VersionMixin" : true
+  }
 }

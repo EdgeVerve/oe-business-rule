@@ -8,14 +8,14 @@ var path = require('path');
 var bootstrapped = require('./bootstrapper');
 var { fetchXLSBase64 } = require('./test-utils');
 
-describe("DecisionService Model Tests", () => {
+describe('DecisionService Model Tests', () => {
   var DecisionGraph, DecisionService;
   // var prefix = "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,";
   var testContext = {
     ctx: { tenantId: 'test-tenant'}
   };
 
-  before('wait for boot', function(done){
+  before('wait for boot', function (done) {
     // this.timeout(8000)
     bootstrapped.then(() => {
       // debugger
@@ -28,59 +28,56 @@ describe("DecisionService Model Tests", () => {
 
       done();
     })
-    .catch(done)
+      .catch(done);
   });
 
-  before('create a decision graph', function(done){
+  before('create a decision graph', function (done) {
     var filePath = path.resolve(path.join(__dirname, 'test-data/RoutingDecisionService-Demo.xlsx'));
     var data = {
       name: 'foo1',
       documentName: 'RoutingDecisionService-Demo.xlsx',
       documentData: fetchXLSBase64(filePath)
     };
-    DecisionGraph.create(data, testContext, function(err){
-      if(err) {
+    DecisionGraph.create(data, testContext, function (err) {
+      if (err) {
         done(err);
-      }
-      else {
+      } else {
         done();
       }
     });
   });
 
-  
 
-  it('should insert decision service data without errors', function(done) {
+  it('should insert decision service data without errors', function (done) {
     var data = {
       name: 'service1',
       decisions: ['Routing'],
       graphId: 'foo1'
     };
 
-    DecisionService.create(data, testContext, function(err) {
-      if(err) {
+    DecisionService.create(data, testContext, function (err) {
+      if (err) {
         done(err);
-      }
-      else {
+      } else {
         done();
       }
     });
   });
 
-  it('should fail when you insert service data with a non-existant decision name', function(done) {
+  it('should fail when you insert service data with a non-existant decision name', function (done) {
     var data = {
       name: 'service2',
       graphId: 'foo1',
       decisions: ['Routing', 'Affordability']
     };
 
-    DecisionService.create(data, testContext, function(err){
+    DecisionService.create(data, testContext, function (err) {
       expect(err, 'it did not fail!').to.not.be.null;
       done();
     });
   });
 
-  it('should invoke a service and give the correct result', function(done){
+  it('should invoke a service and give the correct result', function (done) {
     var payload = {
       'Applicant data': {
         Age: 51,
@@ -106,7 +103,7 @@ describe("DecisionService Model Tests", () => {
     };
     DecisionService.invoke('service1', payload, testContext, (err, result) => {
       if (err) {
-        done(err)
+        done(err);
       } else {
         expect(result).to.eql({
           Routing: {
@@ -118,8 +115,8 @@ describe("DecisionService Model Tests", () => {
     });
   });
 
-  it('should update a service without errors', function(done){
-    DecisionService.findOne({ where: { name: 'service1' }}, testContext, function(err, data) {
+  it('should update a service without errors', function (done) {
+    DecisionService.findOne({ where: { name: 'service1' }}, testContext, function (err, data) {
       if (err) {
         done(err);
       } else {
@@ -132,16 +129,16 @@ describe("DecisionService Model Tests", () => {
         expect(data.decisions.slice()).to.eql(['Routing']);
         expect(data.id).to.be.string;
         var id = data.id;
-        var version = data._version
+        var version = data._version;
         var graphId = data.graphId;
         // debugger;
         DecisionService.upsert({
           id: id,
           // _version: version,
-          decisions:['Routing Rules'],
+          decisions: ['Routing Rules'],
           graphId,
-          name:'service1'
-        }, testContext, function(err, result) {
+          name: 'service1'
+        }, testContext, function (err, result) {
           if (err) {
             done(err);
           } else {
@@ -153,5 +150,5 @@ describe("DecisionService Model Tests", () => {
         // done();
       }
     });
- });
+  });
 });
