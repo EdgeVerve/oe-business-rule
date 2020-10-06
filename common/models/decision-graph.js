@@ -87,6 +87,11 @@ module.exports = function (DecisionGraph) {
     accepts: [{
       arg: 'inputData', type: 'object', http: { source: 'body' },
       required: true, description: 'The JSON containing the graph node data to validate'
+    },
+    {
+      arg: 'options',
+      type: 'object',
+      http: 'optionsFromRequest'
     }
     ],
     http: {

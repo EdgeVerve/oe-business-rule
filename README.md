@@ -2,9 +2,9 @@
 
 ## Introduction
 
-This oe-cloud module implements the business rule functionality. The most common way to represent a rule is via **decision tables**.
-We additionally allow rules to be represented hierarchially via a concept called **decision graphs and services**. Both are accessed
-through different APIs.
+This oe-cloud module implements the business rule functionality. The most common way to represent a rule is via **decision tables**. 
+We additionally allow rules to be represented hierarchially via a concept called **decision graphs, decision services and decision tree**. All are accessed 
+through different APIs. 
 
 This module extensively makes use of js-feel business rule engine.
 
@@ -18,6 +18,8 @@ But, you require a full-fledged designer to compose decision graphs. This lets y
 oe-cloud module on its own. Alternatively, you can work with excel files for representing decision graphs and services, however,
 they will not give you the visual experience required, and, it becomes tedious to understand the relationship between various
 decision elements. However, decision graphs and services provide for a powerful and complex rule representations.
+
+There is a way to execute a chain of decision rules via a concept called **decision tree**. Decision Tree uses the tree representation to solve the problem in which each node is either a *decision table* or *decision gate*. Based on the branch conditions, rules are executed. This can be invoked through `DecisionTree.exec` remote method.
 
 ## How are rules actually implemented?
 
@@ -91,6 +93,114 @@ with the payload and the name of the rule
 ### 2. Decision Graphs and Services
 
 #### Example
+
+
+### 3. Decision Tree
+
+To insert a decision tree, we post JSON as follows to the **DecisionTree** model.
+
+```
+[
+  {
+    "name": "<TreeName>",
+    "nodes": "<Array_of_objects_comprising_of_DecisionTables_and_DecisionGates>",
+    "connections": "<Array_of_objects_showing_connections_between_different_nodes>"
+  }
+]
+```
+> Note: If done via HTTP, we do a POST to `/api/DecisionTrees/`
+
+To execute this, we call the `DecisionTree.exec` remote method or make a POST to `/api/DecisionTrees/exec` 
+with the payload and the name of the tree.
+
+#### Example
+
+Post below data to `/api/DecisionTrees/`
+
+````
+[
+  {
+    "name": "TestTree",
+    "nodes": [
+      {
+        "id": "n-rkljn4byr",
+        "name": "UserLocation",
+        "nodeType": "DECISION_TABLE",
+        "x": 574,
+        "y": 8,
+        "data": {},
+        "skipFeel": true
+      },
+      {
+        "id": "n-fub5yhz6f",
+        "name": "Decision Gate 2",
+        "nodeType": "DECISION_GATE",
+        "x": 574,
+        "y": 168,
+        "data": {},
+        "skipFeel": true
+      },
+      {
+        "id": "n-rze21y6nh",
+        "name": "eligibility_USA",
+        "nodeType": "DECISION_TABLE",
+        "x": 327,
+        "y": 425,
+        "data": {},
+        "skipFeel": true
+      },
+      {
+        "id": "n-rbnxnuxst",
+        "name": "eligibility_FR",
+        "nodeType": "DECISION_TABLE",
+        "x": 856,
+        "y": 432,
+        "data": {},
+        "skipFeel": true
+      }
+    ],
+    "connections": [
+      {
+        "from": "n-rkljn4byr",
+        "to": "n-fub5yhz6f",
+        "id": "c-1ghbvmu02",
+        "condition": ""
+      },
+      {
+        "from": "n-fub5yhz6f",
+        "to": "n-rze21y6nh",
+        "id": "c-ebty0cye",
+        "condition": "location === \"US\""
+      },
+      {
+        "from": "n-fub5yhz6f",
+        "to": "n-rbnxnuxst",
+        "id": "c-appxa5hi2u",
+        "condition": "location == \"FR\""
+      }
+    ]
+  }
+]
+````
+
+ Graphical representation of above posted model
+
+![decision-tree-graphical-representation](./test/test-data/decision-tree-example.png)
+
+ To execute this, we call the `DecisionTree.exec` remote method or make a POST to `/api/DecisionTrees/exec` 
+with the payload and the name of the tree.
+
+Below data can be used as payload to execute the decision tree and `TestTree` can be used as a name for the above posted data.
+
+````
+{
+	"userName":"user1",
+	"amount": 3000,
+	"type":"PERSONAL_LOAN",
+	"experience" : 5 ,
+	"monthlyIncome":1000
+}
+````
 
 
 ## Towards standardization

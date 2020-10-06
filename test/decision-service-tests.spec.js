@@ -77,6 +77,37 @@ describe('DecisionService Model Tests', () => {
     });
   });
 
+  it('should fail when you invoke a service with a wrong service name', function (done) {
+    var payload = {
+      'Applicant data': {
+        Age: 51,
+        MaritalStatus: 'M',
+        EmploymentStatus: 'EMPLOYED',
+        'ExistingCustomer': false,
+        'Monthly': {
+          'Income': 10000,
+          'Repayments': 2500,
+          'Expenses': 3000
+        }
+      },
+      'Requested product': {
+        ProductType: 'STANDARD LOAN',
+        Rate: 0.08,
+        Term: 36,
+        Amount: 100000
+      },
+      'Bureau data': {
+        Bankrupt: false,
+        CreditScore: 600
+      }
+    };
+    DecisionService.invoke('wrongService', payload, testContext, function(err) {
+        expect(err).to.exist;
+        expect(err.message).to.equal('No Service found for ServiceName wrongService')
+        done();
+    });
+  });
+
   it('should invoke a service and give the correct result', function (done) {
     var payload = {
       'Applicant data': {

@@ -13,6 +13,9 @@ var assert = require('assert');
 // var loopback = require('loopback');
 var logger = require('oe-logger');
 var log = logger('decision-table');
+var { generateExcelBuffer } = require('../../lib/excel-helper');
+var prefix = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,';
+
 // var getError = require('oe-cloud/lib/error-utils').getValidationError;
 var delimiter = '&SP';
 
@@ -42,7 +45,7 @@ module.exports = function decisionTableFn(decisionTable) {
         log.error(ctx.options, 'Error - Unable to process decision table data -', err);
         next(new Error('Decision table data provided could not be parsed, please provide proper data'));
       }
-    } else if ( 'decisionRules' in data) {
+    } else if ('decisionRules' in data) {
       next();
     } else {
       next(new Error('Data being posted is incorrect. Either an excel file was expected for property - documentData, or, a parsed decision table object was expected for property - decisionRules'));
@@ -168,7 +171,7 @@ module.exports = function decisionTableFn(decisionTable) {
     options = options || {};
     cb = cb || utils.createPromiseCallback();
 
-    decisionTable.findOne({ where: { id: recordId }}, options, function dtFineOneCb(err, result) {
+    decisionTable.findOne({ where: { id: recordId } }, options, function dtFineOneCb(err, result) {
       if (err) {
         return cb(err);
       }
@@ -178,6 +181,30 @@ module.exports = function decisionTableFn(decisionTable) {
       return cb(null, { name: documentName, data: documentData });
     });
   };
+
+  const getFormattedValue = str => str.replace(/\"{2,}/g, '\"').replace(/^\"|\"$/g, '');
+
+  function parseContext(commaSepString) {
+    const csv = commaSepString.split('\n');
+    let context = {};
+    let i = 1;
+
+    for (; i < csv.length; i += 1) {
+      const arr = csv[i].split(delimiter).filter(String);
+      if (arr.length > 0 && arr[0] === 'RuleTable') {
+        break;
+      } else if (arr.length > 0) {
+        const count = arr[1].split('"').length - 1;
+        if (count > 0) {
+          arr[1] = getFormattedValue(arr[1]);
+        }
+        context[arr[0]] = arr[1];
+      }
+    }
+    // context = Object.keys(context).length > 0 ? JSON.stringify(context).replace(/"/g, '').replace(/\\/g, '"') : '';
+    // return context.length > 0 ? context : null;
+    return context;
+  }
 
   decisionTable.remoteMethod('document', {
     description: 'retrieve the excel file document of the corresponding decision (as base64 only)',
@@ -191,6 +218,11 @@ module.exports = function decisionTableFn(decisionTable) {
           source: 'path'
         },
         description: 'record id of the corresponding decision or rule name'
+      },
+      {
+        arg: 'options',
+        type: 'object',
+        http: 'optionsFromRequest'
       }
     ],
     http: {
@@ -211,6 +243,11 @@ module.exports = function decisionTableFn(decisionTable) {
     accepts: [{
       arg: 'inputData', type: 'object', http: { source: 'body' },
       required: true, description: 'The JSON containing the document data to parse'
+    },
+    {
+      arg: 'options',
+      type: 'object',
+      http: 'optionsFromRequest'
     }
     ],
     http: {
@@ -247,6 +284,50 @@ module.exports = function decisionTableFn(decisionTable) {
     var sheet = workbook.Sheets[workbook.SheetNames[0]];
     var csv = XLSX.utils.sheet_to_csv(sheet, { FS: delimiter });
     var decisionRules = dTable.csv_to_decision_table(csv);
-    cb(null, decisionRules);
+    var contextObj = parseContext(csv);
+    cb(null, { decisionRules, contextObj });
+  };
+
+
+  // remote method declaration for getExcel
+  decisionTable.remoteMethod('getExcel', {
+    description: 'Generates an excel file response, given a json description for a decision table from the rule designer',
+    accessType: 'WRITE',
+    isStatic: true,
+    accepts: [
+      {
+        arg: 'dtJson',
+        type: 'object',
+        http: { source: 'body' },
+        required: true,
+        description: 'The JSON containing the decision table description from rule designer'
+      }
+    ],
+    http: {
+      verb: 'POST',
+      path: '/getExcel'
+    },
+    returns: [
+      {
+        type: 'string',
+        root: true,
+        arg: 'body',
+        description: 'base64 encoded string which encodes the generated excel file'
+      }
+    ]
+  });
+
+  decisionTable.getExcel = function (dtJson, options, cb) {
+    if (typeof cb === 'undefined' && typeof options === 'function') {
+      cb = options;
+      options = {};
+    }
+    try {
+      let buff = generateExcelBuffer(dtJson);
+      let base64Data = prefix + buff.toString('base64');
+      cb(null, base64Data);
+    } catch (error) {
+      cb(error);
+    }
   };
 };

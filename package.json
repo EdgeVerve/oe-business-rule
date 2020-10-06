@@ -1,6 +1,6 @@
 {
   "name": "oe-business-rule",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "oe-cloud modularization project aka oecloud.io",
   "engines": {
     "node": ">=6"
